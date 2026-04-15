@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Register – Maths Mayhem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:#f5ede0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+    .box{background:#fff;border:3px solid #1a1a1a;box-shadow:7px 7px 0 #1a1a1a;padding:2rem 1.75rem;width:370px;text-align:center}
+    .logo{font-family:'Baloo 2',cursive;font-size:1.8rem;font-weight:800;margin-bottom:.15rem}
+    .sub{color:#888;font-size:.83rem;margin-bottom:1.25rem}
+    .role-row{display:flex;gap:8px;margin-bottom:1.1rem}
+    .role-btn{flex:1;padding:.65rem;border:2.5px solid #ccc;background:#f5f5f5;font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;cursor:pointer;border-radius:4px;transition:all .1s;color:#888}
+    .role-btn.active-student{background:#3a9e5f;border-color:#2e7d52;color:#fff}
+    .role-btn.active-teacher{background:#2980b9;border-color:#1a5f8f;color:#fff}
+    .role-btn:hover{transform:translate(-1px,-1px)}
+    input[name="role"]{display:none}
+    .field-lbl{font-family:'Baloo 2',cursive;font-size:.72rem;font-weight:800;color:#888;text-align:left;margin-top:.6rem;margin-bottom:.2rem}
+    .field{display:flex;align-items:center;gap:.45rem;border:2.5px solid #1a1a1a;padding:.55rem .8rem;margin-bottom:.5rem;background:#fafafa}
+    .field:focus-within{border-color:#c0392b;background:#fff}
+    .field input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:.93rem;width:100%;color:#1a1a1a}
+    /* classroom code section */
+    .code-section{display:none;background:#eafaf1;border:2px solid #2e7d52;padding:.85rem;border-radius:4px;margin-top:.6rem;text-align:left}
+    .code-section.show{display:block}
+    .code-section p{font-size:.8rem;color:#1a5c35;font-weight:bold;margin-bottom:.5rem}
+    .code-section .optional{font-size:.73rem;color:#2e7d52;font-weight:normal}
+    .code-field{display:flex;align-items:center;gap:.45rem;border:2.5px solid #2e7d52;padding:.5rem .8rem;background:#fff}
+    .code-field input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:1rem;width:100%;letter-spacing:.1rem;color:#1a1a1a;font-weight:bold;text-transform:uppercase}
+    /* teacher pin section */
+    .pin-section{display:none;background:#e8f4fd;border:2px solid #2980b9;padding:.85rem;border-radius:4px;margin-top:.6rem;text-align:left}
+    .pin-section.show{display:block}
+    .pin-section p{font-size:.8rem;color:#1a5f8f;font-weight:bold;margin-bottom:.5rem}
+    .pin-field{display:flex;align-items:center;gap:.45rem;border:2.5px solid #2980b9;padding:.5rem .8rem;background:#fff}
+    .pin-field input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:1.1rem;width:100%;letter-spacing:.2rem;color:#1a1a1a;font-weight:bold}
+    .errs,.warn{font-size:.8rem;font-weight:800;padding:.38rem .65rem;margin-bottom:.6rem;text-align:left}
+    .errs{color:#c0392b;background:#fde8e8;border:2px solid #c0392b}
+    .errs ul{list-style:none;padding:0}.errs li{margin:2px 0}
+    .warn{color:#784212;background:#fef9ec;border:2px solid #e07820}
+    .lbtn{width:100%;padding:.8rem;background:#c0392b;color:#fff;border:3px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:1.05rem;font-weight:800;cursor:pointer;box-shadow:4px 4px 0 #1a1a1a;transition:transform .1s,box-shadow .1s;margin-bottom:.75rem;margin-top:.6rem}
+    .lbtn.teacher-mode{background:#2980b9;border-color:#1a5f8f}
+    .lbtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #1a1a1a}
+    .link{display:block;padding:.65rem;background:#f5ede0;border:2.5px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;text-decoration:none;color:#1a1a1a;box-shadow:3px 3px 0 #1a1a1a}
+    .hint{margin-top:.85rem;font-size:.73rem;color:#888;background:#f5ede0;padding:.45rem;line-height:1.6}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">🧮 Maths Mayhem</div>
+    <div class="sub">Create your account!</div>
+
+    <div class="role-row">
+      <button type="button" class="role-btn active-student" id="btnStudent" onclick="setRole('student')">🎓 Student</button>
+      <button type="button" class="role-btn" id="btnTeacher" onclick="setRole('teacher')">👩‍🏫 Teacher</button>
+    </div>
+
+    {% if error %}<div class="warn">{{ error }}</div>{% endif %}
+    {% if form.errors %}
+      <div class="errs">
+        <ul>{% for field in form %}{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}{% endfor %}
+            {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+
+    <form method="post" id="regForm">
+      {% csrf_token %}
+      <input type="hidden" name="role" id="roleInput" value="student"/>
+
+      <div class="field-lbl">Username</div>
+      <div class="field"><span>👤</span><input type="text" name="username" maxlength="150" placeholder="Pick a username" autocomplete="off" autofocus/></div>
+      <div class="field-lbl">Password</div>
+      <div class="field"><span>🔑</span><input type="password" name="password1" placeholder="Choose a password" autocomplete="new-password"/></div>
+      <div class="field-lbl">Confirm password</div>
+      <div class="field"><span>🔑</span><input type="password" name="password2" placeholder="Repeat your password" autocomplete="new-password"/></div>
+
+      <!-- Student: classroom code (optional) -->
+      <div class="code-section show" id="codeSection">
+        <p>🏫 Classroom code <span class="optional">(optional — ask your teacher)</span></p>
+        <div class="code-field"><span>🔢</span><input type="text" name="class_code" placeholder="e.g. MATHS2A" maxlength="20" value="{{ class_code|default:'' }}" autocomplete="off" oninput="this.value=this.value.toUpperCase()"/></div>
+      </div>
+
+      <!-- Teacher: PIN -->
+      <div class="pin-section" id="pinSection">
+        <p>🔐 Enter the Teacher PIN to create a teacher account:</p>
+        <div class="pin-field"><span>🔢</span><input type="password" name="teacher_pin" placeholder="Enter PIN" maxlength="10" inputmode="numeric"/></div>
+      </div>
+
+      <button class="lbtn" id="submitBtn" type="submit">Create account!</button>
+    </form>
+
+    <a class="link" href="{% url 'login' %}">Already have an account? Log in →</a>
+    <div class="hint" id="roleHint">Your progress, stars and shop purchases are saved automatically. Enter a classroom code if your teacher gave you one.</div>
+  </div>
+
+  <script>
+  function setRole(role) {
+    document.getElementById('roleInput').value = role;
+    var cs = document.getElementById('codeSection');
+    var ps = document.getElementById('pinSection');
+    var sb = document.getElementById('submitBtn');
+    var bs = document.getElementById('btnStudent');
+    var bt = document.getElementById('btnTeacher');
+    var rh = document.getElementById('roleHint');
+    if (role === 'teacher') {
+      bs.className = 'role-btn';
+      bt.className = 'role-btn active-teacher';
+      cs.classList.remove('show');
+      ps.classList.add('show');
+      sb.className = 'lbtn teacher-mode';
+      sb.textContent = 'Create teacher account!';
+      rh.textContent = 'Teacher accounts access the dashboard where you can create classes and monitor student progress.';
+    } else {
+      bs.className = 'role-btn active-student';
+      bt.className = 'role-btn';
+      cs.classList.add('show');
+      ps.classList.remove('show');
+      sb.className = 'lbtn';
+      sb.textContent = 'Create account!';
+      rh.textContent = 'Your progress, stars and shop purchases are saved automatically. Enter a classroom code if your teacher gave you one.';
+    }
+  }
+  {% if request.POST.role == 'teacher' %}setRole('teacher');{% endif %}
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{% extends "core/base.html" %}
+{% block title %}Task {{ task.order }} – Maths Mayhem{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 style="margin-bottom:.4rem">🚧 Task {{ task.order }} — Coming Soon</h1>
+  <p style="color:#666;font-size:.9rem;margin-bottom:1.25rem">This task is planned for the next version!</p>
+  <a href="{% url 'core:tasks' %}" class="btn">← Back to tasks</a>
+</div>
+{% endblock %}

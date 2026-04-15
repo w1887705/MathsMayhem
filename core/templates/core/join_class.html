@@ -1,0 +1,44 @@
+{% extends "core/base.html" %}
+{% block title %}Join a Class – Maths Mayhem{% endblock %}
+{% block extra_styles %}
+.join-page{max-width:440px;margin:3rem auto;padding:0 1.25rem}
+.join-box{background:#fff;border:3px solid #1a1a1a;box-shadow:7px 7px 0 #1a1a1a;padding:2rem 1.75rem}
+.field-lbl{font-family:'Baloo 2',cursive;font-size:.78rem;font-weight:800;color:#888;margin-top:.9rem;margin-bottom:.3rem;display:block}
+.field{display:flex;align-items:center;gap:.5rem;border:2.5px solid #1a1a1a;padding:.55rem .85rem;background:#fafafa}
+.field:focus-within{border-color:#2e7d52;background:#fff}
+.field input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:1.1rem;width:100%;color:#1a1a1a;text-transform:uppercase;letter-spacing:.12rem;font-weight:800}
+.warn{color:#c0392b;font-size:.82rem;font-weight:800;background:#fde8e8;border:2px solid #c0392b;padding:.5rem .75rem;margin-bottom:.8rem}
+.ok{color:#1a5c35;font-size:.85rem;font-weight:800;background:#d5f5e3;border:2px solid #27ae60;padding:.55rem .75rem;margin-bottom:.8rem}
+.submit-btn{width:100%;padding:.85rem;background:#2e7d52;color:#fff;border:3px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:4px 4px 0 #1a1a1a;margin-top:1rem;transition:all .1s}
+.submit-btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #1a1a1a}
+.back{display:inline-block;margin-bottom:1rem;font-family:'Baloo 2',cursive;font-size:.85rem;font-weight:800;color:#c0392b;text-decoration:none}
+.back:hover{text-decoration:underline}
+.current-class{background:#f5ede0;border:2px solid #ccc;padding:.6rem .85rem;font-size:.82rem;color:#555;margin-bottom:.8rem}
+{% endblock %}
+{% block content %}
+<div class="join-page">
+  <a class="back" href="{% url 'core:tasks' %}">← Back to tasks</a>
+  <div class="join-box">
+    <h2 style="font-family:'Baloo 2',cursive;margin-bottom:.3rem">🏫 Join a Class</h2>
+    <p style="color:#666;font-size:.83rem;margin-bottom:1rem">Enter the code your teacher gave you to join their class.</p>
+
+    {% if profile.classroom %}
+    <div class="current-class">
+      You're currently in: <strong>{{ profile.classroom.name }}</strong>
+      (code: {{ profile.classroom.join_code }}).<br>
+      Entering a new code will switch you to that class.
+    </div>
+    {% endif %}
+
+    {% if success %}<div class="ok">{{ success }} <a href="{% url 'core:tasks' %}" style="color:#1a5c35;font-weight:bold">← Go to tasks</a></div>{% endif %}
+    {% if error %}<div class="warn">{{ error }}</div>{% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <span class="field-lbl">Classroom code</span>
+      <div class="field"><span>🔢</span><input type="text" name="class_code" placeholder="e.g. MATHS2A" maxlength="20" autofocus autocomplete="off"/></div>
+      <button class="submit-btn" type="submit">Join class!</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

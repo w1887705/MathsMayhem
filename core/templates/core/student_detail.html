@@ -1,0 +1,125 @@
+{% extends "core/base.html" %}
+{% block title %}{{ student.username }} – Maths Mayhem{% endblock %}
+{% block extra_styles %}
+.detail-page{max-width:820px;margin:0 auto;padding:1.5rem 1.25rem}
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-family:'Baloo 2',cursive;font-size:.85rem;font-weight:800;color:#c0392b;text-decoration:none;margin-bottom:1rem}
+.back-link:hover{text-decoration:underline}
+.student-header{background:#fff;border:3px solid #1a1a1a;box-shadow:5px 5px 0 #888;padding:1.1rem 1.3rem;margin-bottom:1.3rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.avatar{font-size:3rem;line-height:1}
+.student-name{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800}
+.student-meta{font-size:.8rem;color:#666;margin-top:.2rem}
+.stars-big{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;background:#fff3c4;border:2px solid #f5a623;padding:4px 12px;box-shadow:2px 2px 0 #c47d10;margin-left:auto}
+/* task cards */
+.task-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem;margin-bottom:1.5rem}
+.task-card{background:#fff;border:3px solid #1a1a1a;box-shadow:4px 4px 0 #888;overflow:hidden}
+.tc-header{background:#b94040;color:#fff;font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;padding:6px 12px}
+.tc-body{padding:12px}
+.diff-row-d{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #eee}
+.diff-row-d:last-child{border-bottom:none}
+.diff-name{font-family:'Baloo 2',cursive;font-size:.72rem;font-weight:800;min-width:55px}
+.diff-name.easy{color:#2e7d52}
+.diff-name.medium{color:#d97706}
+.diff-name.hard{color:#b94040}
+.stars-row{font-size:.85rem;letter-spacing:1px}
+.star-g{color:#f5a623}
+.star-e{color:#e5ddd4}
+.badge-done{background:#e8f5ef;border:1.5px solid #2e7d52;color:#1a4d35;font-family:'Baloo 2',cursive;font-size:.65rem;font-weight:800;padding:1px 6px}
+.badge-todo{background:#f5f5f5;border:1.5px solid #ccc;color:#aaa;font-family:'Baloo 2',cursive;font-size:.65rem;font-weight:800;padding:1px 6px}
+/* recent table */
+.section-title{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;margin-bottom:.6rem;border-left:4px solid #c0392b;padding-left:.6rem}
+.recent-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.recent-table th{font-family:'Baloo 2',cursive;padding:6px 10px;background:#1a1a1a;color:#fff;font-size:.75rem;text-align:left}
+.recent-table td{padding:6px 10px;border-bottom:1.5px solid #e5ddd4}
+.recent-table tr:nth-child(even) td{background:#fafafa}
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+  <a class="back-link" href="{% url 'core:teacher_dashboard' %}">← Back to dashboard</a>
+
+  <div class="student-header">
+    <div class="avatar">🎓</div>
+    <div>
+      <div class="student-name">{{ student.username }}</div>
+      <div class="student-meta">Student account · Joined {{ student.date_joined|date:"d M Y" }}</div>
+    </div>
+    <span class="stars-big">⭐ {{ profile.total_stars }} stars</span>
+  </div>
+
+  <!-- Task progress cards -->
+  <div class="task-cards">
+    {% for td in task_data %}
+    <div class="task-card">
+      <div class="tc-header">
+        {% if td.task.slug == "task-10-ribbon" %}🎀{% elif td.task.slug == "task-12-cookie" %}🍪{% else %}🍕{% endif %}
+        {{ td.task.title }}
+      </div>
+      <div class="tc-body">
+        <!-- Easy -->
+        <div class="diff-row-d">
+          <span class="diff-name easy">Easy</span>
+          {% if td.easy_stars > 0 %}
+            <span class="stars-row">{% for i in "123" %}{% if forloop.counter <= td.easy_stars %}<span class="star-g">★</span>{% else %}<span class="star-e">★</span>{% endif %}{% endfor %}</span>
+            <span class="badge-done">✅ Done</span>
+          {% else %}
+            <span class="badge-todo">Not done</span>
+          {% endif %}
+        </div>
+        <!-- Medium -->
+        <div class="diff-row-d">
+          <span class="diff-name medium">Medium</span>
+          {% if td.medium_stars > 0 %}
+            <span class="stars-row">{% for i in "123" %}{% if forloop.counter <= td.medium_stars %}<span class="star-g">★</span>{% else %}<span class="star-e">★</span>{% endif %}{% endfor %}</span>
+            <span class="badge-done">✅ Done</span>
+          {% else %}
+            <span class="badge-todo">Not done</span>
+          {% endif %}
+        </div>
+        <!-- Hard -->
+        <div class="diff-row-d">
+          <span class="diff-name hard">Hard</span>
+          {% if td.hard_stars > 0 %}
+            <span class="stars-row">{% for i in "123456" %}{% if forloop.counter <= td.hard_stars %}<span class="star-g">★</span>{% else %}<span class="star-e">★</span>{% endif %}{% endfor %}</span>
+            <span class="badge-done">✅ Done</span>
+          {% else %}
+            <span class="badge-todo">Not done</span>
+          {% endif %}
+        </div>
+        {% if td.last_score is not None %}
+        <div style="font-size:.72rem;color:#888;margin-top:6px">Last score: {{ td.last_score }} pts</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Recent progress updates -->
+  <div class="section-title">Recent activity</div>
+  {% if recent %}
+  <table class="recent-table">
+    <thead><tr><th>Task</th><th>Difficulty progress</th><th>Last updated</th></tr></thead>
+    <tbody>
+      {% for prog in recent %}
+      <tr>
+        <td><strong>
+          {% if prog.task.slug == "task-10-ribbon" %}🎀{% elif prog.task.slug == "task-12-cookie" %}🍪{% else %}🍕{% endif %}
+          {{ prog.task.title }}
+        </strong></td>
+        <td>
+          {% if prog.easy_stars > 0 %}<span style="color:#2e7d52;font-size:.75rem;font-weight:bold">Easy ✅</span> {% endif %}
+          {% if prog.medium_stars > 0 %}<span style="color:#d97706;font-size:.75rem;font-weight:bold">Medium ✅</span> {% endif %}
+          {% if prog.hard_stars > 0 %}<span style="color:#b94040;font-size:.75rem;font-weight:bold">Hard ✅</span>{% endif %}
+          {% if prog.easy_stars == 0 and prog.medium_stars == 0 and prog.hard_stars == 0 %}
+            <span style="color:#aaa;font-size:.75rem">Not started</span>
+          {% endif %}
+        </td>
+        <td style="color:#888;font-size:.75rem">{{ prog.updated_at|date:"d M Y, H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:#888;font-style:italic;font-size:.85rem">No activity recorded yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

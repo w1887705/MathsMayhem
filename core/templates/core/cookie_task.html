@@ -1,0 +1,1255 @@
+{% extends "core/base.html" %}
+{% block title %}Cookie Share – Maths Mayhem{% endblock %}
+
+{% block extra_styles %}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f5f0e8; color: #222; }
+
+    /* header */
+    .header {
+      background: #b94040;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 20px; }
+    .header .lives { font-size: 16px; font-weight: bold; }
+
+    /* difficulty */
+    .diff-bar {
+      background: #e8e0d0;
+      border-bottom: 1px solid #ccc;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .diff-bar label { font-size: 14px; font-weight: bold; }
+    .diff-btn {
+      padding: 5px 16px;
+      border: 2px solid #999;
+      background: white;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .diff-btn.active-easy   { background: #3a9e5f; color: white; border-color: #3a9e5f; }
+    .diff-btn.active-medium { background: #e07820; color: white; border-color: #e07820; }
+    .diff-btn.active-hard   { background: #b94040; color: white; border-color: #b94040; }
+
+    /* notice */
+    .notice-bar {
+      padding: 7px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      background: #eafaf1;
+      color: #1a5c35;
+      border-left: 5px solid #3a9e5f;
+    }
+
+    /* two-column */
+    .main { display: flex; min-height: calc(100vh - 105px); }
+    .task-area { flex: 1; padding: 18px 20px; border-right: 2px solid #ccc; overflow-y: auto; }
+
+    /* right panel */
+    .answer-panel {
+      width: 240px;
+      flex-shrink: 0;
+      padding: 18px 16px;
+      background: #fdf8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .answer-panel-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+    .answer-box {
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      min-height: 80px;
+    }
+    .answer-box .big-num {
+      font-size: 36px;
+      font-weight: bold;
+      color: #b94040;
+      display: block;
+      text-align: center;
+    }
+    .answer-feedback {
+      font-size: 13px;
+      font-weight: bold;
+      padding: 8px 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .answer-feedback.ok  { display: block; background: #d5f5e3; color: #1a5c35; border: 1px solid #27ae60; }
+    .answer-feedback.bad { display: block; background: #fadbd8; color: #7b241c; border: 1px solid #c0392b; }
+    .next-panel-btn {
+      width: 100%;
+      padding: 10px;
+      background: #3a9e5f;
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      display: none;
+    }
+    .next-panel-btn:hover { background: #2e7d52; }
+    .next-panel-btn.show { display: block; }
+
+    /* rosie */
+    .rosie-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+    .rosie-img { font-size: 36px; flex-shrink: 0; }
+    .speech {
+      flex: 1;
+      background: white;
+      border: 2px solid #999;
+      border-radius: 4px 12px 12px 12px;
+      padding: 9px 13px;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.5;
+      position: relative;
+    }
+    .speech::before { content:''; position:absolute; bottom:-9px; left:12px; border:5px solid transparent; border-top-color:#999; }
+    .speech::after  { content:''; position:absolute; bottom:-6px; left:14px; border:3px solid transparent; border-top-color:white; }
+
+    /* cookie pool */
+    .pool-section {
+      background: #f9f4ec;
+      border: 2px solid #e0c890;
+      border-radius: 6px;
+      padding: 12px;
+      margin: 0 0 14px;
+    }
+    .pool-title { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 6px; }
+    .pool-count { font-size: 20px; font-weight: bold; color: #b94040; }
+    .pool-cookies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    /* each draggable cookie in the pool */
+    .pool-cookie {
+      font-size: 22px;
+      line-height: 1;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.1s;
+      display: inline-block;
+    }
+    .pool-cookie:hover { transform: scale(1.2); }
+    .pool-cookie:active { cursor: grabbing; }
+    .pool-cookie.dragging { opacity: 0.4; }
+
+    /* character cards */
+    .char-grid { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .char-card {
+      background: white;
+      border: 3px solid #ccc;
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+      min-width: 120px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      position: relative;
+    }
+    .char-card:hover  { border-color: #b94040; transform: translateY(-2px); }
+    .char-card.drag-over { border-color: #b94040; background: #fff0f0; transform: scale(1.03); }
+    .char-card.correct-card { border-color: #27ae60; background: #eafaf1; cursor: default; }
+    .char-card.wrong-card   { border-color: #c0392b; background: #fadbd8; }
+    .click-hint {
+      font-size: 10px;
+      color: #aaa;
+      font-style: italic;
+      margin-top: -4px;
+    }
+    .char-emoji-big { font-size: 44px; line-height: 1; }
+    .char-name  { font-size: 13px; font-weight: bold; color: #333; }
+    .char-size  { font-size: 11px; color: #888; }
+    .char-needs { font-size: 11px; font-weight: bold; color: #b94040; }
+    .char-ratio-badge {
+      font-size: 11px;
+      font-weight: bold;
+      background: #f0e8d0;
+      border: 1px solid #ccc;
+      padding: 2px 7px;
+      border-radius: 10px;
+      color: #555;
+    }
+
+    /* cookie stack inside card */
+    .cookie-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 2px;
+      min-height: 24px;
+      width: 100%;
+    }
+    .stacked-cookie {
+      font-size: 18px;
+      line-height: 1;
+      animation: popIn .15s ease;
+    }
+    .stack-overflow {
+      font-size: 11px;
+      font-weight: bold;
+      color: #888;
+    }
+    .char-count {
+      font-size: 16px;
+      font-weight: bold;
+      color: #b94040;
+    }
+
+    /* ratio bars (medium) */
+    .ratio-hint {
+      background: #fff8e8;
+      border: 2px solid #e07820;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #6b4200;
+    }
+    .ratio-row { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+    .ratio-bar { height: 16px; background: #b94040; border-radius: 2px; display: inline-block; }
+
+    /* hard setup */
+    .setup-box { background: white; border: 2px solid #ccc; border-radius: 8px; padding: 18px; max-width: 480px; }
+    .setup-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; }
+    .setup-label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 6px; display: block; }
+    .char-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .char-check-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f5f5f5;
+      border: 2px solid #ccc;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .char-check-item input { cursor: pointer; width: 16px; height: 16px; }
+    .char-check-item.checked { border-color: #b94040; background: #fff0f0; }
+    .cookie-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .cookie-input-row input[type=number] {
+      width: 90px; height: 40px;
+      border: 2px solid #333;
+      font-size: 18px; text-align: center; font-weight: bold;
+      border-radius: 4px; outline: none;
+    }
+    .cookie-input-row input:focus { border-color: #b94040; }
+    .setup-hint { font-size: 12px; color: #888; margin-top: 4px; font-style: italic; }
+    .start-btn {
+      padding: 10px 24px;
+      background: #b94040;
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .start-btn:hover { background: #933232; }
+
+    /* feedback */
+    .feedback {
+      display: none;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 8px;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+    .feedback.ok   { display: block; background: #d5f5e3; border: 1px solid #27ae60; color: #1a5c35; }
+    .feedback.bad  { display: block; background: #fadbd8; border: 1px solid #c0392b; color: #7b241c; }
+    .feedback.hint { display: block; background: #fef9ec; border: 1px solid #e67e22; color: #784212; }
+    .hint-btn {
+      padding: 6px 12px;
+      background: #fef9ec;
+      color: #784212;
+      border: 1px solid #e67e22;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+    .hint-btn:hover { background: #fdebd0; }
+
+    /* completion */
+    .completion { text-align: center; padding: 40px 20px; }
+    .completion h2 { font-size: 26px; margin-bottom: 8px; }
+    .comp-sub { font-size: 14px; color: #666; margin-bottom: 12px; }
+    .comp-stars { font-size: 28px; letter-spacing: 4px; margin: 8px 0; }
+    .play-again {
+      padding: 11px 24px;
+      background: #e07820;
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+    .play-again:hover { background: #c0621a; }
+
+    .toast {
+      position: fixed;
+      bottom: 14px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #333; color: white;
+      padding: 7px 16px;
+      font-size: 13px; font-weight: bold;
+      z-index: 9999;
+      transition: transform 0.3s;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+{% endblock %}
+
+{% block content %}
+<div class="header">
+  <h1>Cookie Share</h1>
+  <div class="lives">Lives: <span id="livesEl">3</span></div>
+</div>
+
+<div class="diff-bar">
+  <label>Difficulty:</label>
+  <button class="diff-btn active-easy" data-d="easy">Easy</button>
+  <button class="diff-btn" data-d="medium">Medium</button>
+  <button class="diff-btn" data-d="hard">Hard</button>
+</div>
+
+<div class="notice-bar" id="noticeBar">Easy - Share cookies equally between two characters!</div>
+
+<div class="main">
+  <div class="task-area" id="taskArea"></div>
+  <div class="answer-panel" id="answerPanel">
+    <div class="answer-panel-title">How many cookies does each character get?</div>
+    <div class="answer-box" id="answerBox">
+      <span style="color:#aaa;font-size:13px">Drag or click cookies onto each character!</span>
+    </div>
+    <!-- question inputs shown after correct distribution -->
+    <div id="questionArea" style="display:none;flex-direction:column;gap:8px"></div>
+    <button id="checkQBtn" style="display:none;width:100%;padding:10px;background:#b94040;color:white;border:none;font-size:14px;font-weight:bold;cursor:pointer;border-radius:4px" onclick="checkQuestions()">Check answers!</button>
+    <div class="answer-feedback" id="answerFeedback"></div>
+    <button class="next-panel-btn" id="nextPanelBtn" onclick="nextRound()">Next round!</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SAVE_URL = "{% url 'core:save_progress' task.slug %}";
+var CSRF_TOKEN = "{{ csrf_token }}";
+var OWNED_THEMES = {{ owned_themes|safe }};
+
+// Theme packs override the characters
+var THEME_CHARS = {
+  jungle: {
+    mouse:    { emoji:'🐯', name:'Tiger',   size:'Small',  ratio:1 },
+    wolf:     { emoji:'🐒', name:'Monkey',  size:'Medium', ratio:2 },
+    human:    { emoji:'🦜', name:'Parrot',  size:'Large',  ratio:4 },
+    lion: { emoji:'🐘', name:'Lion',size:'Huge',   ratio:8 },
+  },
+  ocean: {
+    mouse:    { emoji:'🦀', name:'Crab',    size:'Tiny',   ratio:1 },
+    wolf:     { emoji:'🐬', name:'Dolphin', size:'Medium', ratio:2 },
+    human:    { emoji:'🦈', name:'Shark',   size:'Large',  ratio:4 },
+    lion: { emoji:'🐋', name:'Whale',   size:'Huge',   ratio:8 },
+  },
+  space: {
+    mouse: { emoji:'👾', name:'Alien Jr', size:'Tiny',   ratio:1 },
+    wolf:  { emoji:'🛸', name:'UFO',      size:'Medium', ratio:2 },
+    human: { emoji:'🤖', name:'Robot',    size:'Large',  ratio:4 },
+    lion:  { emoji:'🪐', name:'Planet',   size:'Huge',   ratio:8 },
+  },
+};
+
+function saveToServer(completed, step, total, stars, difficulty) {
+  fetch(SAVE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+    body: JSON.stringify({
+      completed: completed,
+      current_step: step || 0,
+      total_steps: total || 0,
+      stars: stars || Math.max(1, lives),
+      difficulty: difficulty || diff
+    })
+  }).catch(function(){});
+}
+
+// Cookie amounts each character needs
+// mouse=1 share, cat=2, human=4, lion=8
+var CHARS = {
+  mouse:    { emoji: '🐭', name: 'Mouse',  size: 'Tiny',  ratio: 1 },
+  wolf:     { emoji: '🐺', name: 'Wolf',   size: 'Small', ratio: 2 },
+  human:    { emoji: '🧑', name: 'Human',  size: 'Big',   ratio: 4 },
+  lion:     { emoji: '🦁', name: 'Lion',   size: 'Huge',  ratio: 8 }
+};
+
+// Apply theme override if user owns a pack
+(function(){
+  var themeKeys = ['jungle','ocean','space'];
+  for (var i = 0; i < themeKeys.length; i++) {
+    var tk = themeKeys[i];
+    if (OWNED_THEMES.indexOf(tk) >= 0) {
+      var ov = THEME_CHARS[tk];
+      Object.keys(ov).forEach(function(k){ if (CHARS[k]) CHARS[k] = ov[k]; });
+      break;
+    }
+  }
+})();
+
+// global state
+var diff = 'easy';
+var lives = 3;
+var ri = 0;
+var hardRi = 0;      // which hard round we're on (0-2)
+var HARD_TOTAL = 3;  // always 3 hard rounds
+var score = 0;
+
+// round state
+var currentChars = [];
+var totalCookies = 0;
+var cookiesLeft  = 0;
+var assigned     = [];
+var draggedIdx   = null; // which pool cookie is being dragged (index)
+
+
+/* ======================
+   EASY ROUNDS
+   Two same-size characters, equal split
+   ====================== */
+var easyRounds = [
+  { chars: ['wolf', 'wolf'],           cookies: 8,
+    msg: "Two wolves need to share 8 cookies equally! Click a cookie in the pool to give it to a wolf, or drag it onto them." },
+  { chars: ['human', 'human'],   cookies: 8,
+    msg: "Two hungry humans! Drag or click the 8 cookies to share them equally." },
+  { chars: ['lion', 'lion'], cookies: 16,
+    msg: "Two lions, 16 cookies — share them equally!" }
+];
+
+function renderEasy() {
+  var r = easyRounds[ri];
+  setupRound(r.chars, r.cookies);
+  setRosie(r.msg);
+  renderGame();
+}
+
+
+/* ======================
+   MEDIUM ROUNDS
+   Two different characters, ratio-based
+   ====================== */
+var medRounds = [
+  { chars: ['mouse', 'wolf'], cookies: 6,
+    msg: "Mouse needs 1 share, Wolf needs 2 shares. Share 6 cookies fairly!",
+    hint: "1 share + 2 shares = 3 shares total. 6 ÷ 3 = 2 per share. Mouse gets 2, Wolf gets 4." },
+  { chars: ['wolf', 'human'], cookies: 12,
+    msg: "Wolf needs 2 shares, Human needs 4 shares. Share 12 cookies fairly!",
+    hint: "2 + 4 = 6 shares total. 12 ÷ 6 = 2 per share. Wolf gets 4, Human gets 8." },
+  { chars: ['mouse', 'lion'], cookies: 9,
+    msg: "Tiny Mouse needs 1 share, huge Lion needs 8 shares. Can you share 9 cookies fairly?",
+    hint: "1 + 8 = 9 shares. 9 ÷ 9 = 1 per share. Mouse gets 1, Lion gets 8." }
+];
+
+function renderMedium() {
+  var r = medRounds[ri];
+  setupRound(r.chars, r.cookies);
+  setRosie(r.msg);
+
+  // ratio visual hint
+  var totalRatio = r.chars.reduce(function(s,id){ return s + CHARS[id].ratio; }, 0);
+  var extraHTML =
+    '<div class="ratio-hint">' +
+      '<div style="margin-bottom:6px;font-size:12px">Size guide — how many shares each character needs:</div>' +
+      r.chars.map(function(id) {
+        var ch = CHARS[id];
+        return '<div class="ratio-row">' +
+          '<span style="font-size:18px">' + ch.emoji + '</span>' +
+          '<span style="width:65px;font-size:12px">' + ch.name + '</span>' +
+          '<div class="ratio-bar" style="width:' + (ch.ratio * 14) + 'px"></div>' +
+          '<span style="font-size:12px;color:#888;margin-left:6px">' + ch.ratio + ' share' + (ch.ratio > 1 ? 's' : '') + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+
+  renderGame(extraHTML, r.hint);
+}
+
+
+/* ======================
+   HARD — user picks setup
+   ====================== */
+function renderHard() {
+  setRosie("Round " + (hardRi + 1) + " of " + HARD_TOTAL + " — Pick your characters and cookie count, then press Start!");
+  resetPanel();
+
+  // Build progress tracker boxes
+  var progressBoxes = '';
+  for (var b = 0; b < HARD_TOTAL; b++) {
+    if (b < hardRi) {
+      progressBoxes += '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#2e7d52;border:2px solid #1a5c35;border-radius:4px;font-size:16px;margin:0 4px">✅</span>';
+    } else if (b === hardRi) {
+      progressBoxes += '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#b94040;color:white;border:2px solid #922b21;border-radius:4px;font-size:12px;font-weight:bold;margin:0 4px">' + (b+1) + '</span>';
+    } else {
+      progressBoxes += '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#f5f5f5;border:2px solid #ccc;border-radius:4px;font-size:12px;color:#aaa;margin:0 4px">' + (b+1) + '</span>';
+    }
+  }
+
+  setTask(
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">' +
+      '<span style="font-size:13px;font-weight:bold;color:#555">Progress:</span>' +
+      progressBoxes +
+      '<span style="font-size:12px;color:#888">' + hardRi + ' / ' + HARD_TOTAL + ' done</span>' +
+    '</div>' +
+    '<div class="setup-box">' +
+      '<div class="setup-title">Round ' + (hardRi+1) + ' — Build your own challenge!</div>' +
+      '<label class="setup-label">Step 1 — Choose at least 2 characters:</label>' +
+      '<div class="char-checkboxes" id="charChecks">' +
+        Object.keys(CHARS).map(function(id) {
+          var ch = CHARS[id];
+          return '<label class="char-check-item" id="lbl-' + id + '">' +
+            '<input type="checkbox" id="chk-' + id + '" value="' + id + '" onchange="toggleLabel(\'' + id + '\')" />' +
+            ch.emoji + ' ' + ch.name + ' (' + ch.ratio + ' shares)' +
+          '</label>';
+        }).join('') +
+      '</div>' +
+      '<label class="setup-label">Step 2 — How many cookies?</label>' +
+      '<div class="cookie-input-row">' +
+        '<input type="number" id="cookieCount" min="2" max="200" value="15" oninput="updateHardHint()"/>' +
+        '<span style="font-size:13px;font-weight:bold;color:#555">🍪 cookies</span>' +
+      '</div>' +
+      '<div class="setup-hint" id="hardHint">Select characters to see if your cookie count works!</div>' +
+      '<div class="feedback" id="setupFb"></div>' +
+      '<button class="start-btn" onclick="startHard()">Start!</button>' +
+    '</div>'
+  );
+}
+
+function toggleLabel(id) {
+  var chk = document.getElementById('chk-' + id);
+  var lbl = document.getElementById('lbl-' + id);
+  if (chk.checked) lbl.classList.add('checked'); else lbl.classList.remove('checked');
+  updateHardHint();
+}
+
+function updateHardHint() {
+  var sel = getSelected();
+  var n   = parseInt(document.getElementById('cookieCount').value) || 0;
+  var hint = document.getElementById('hardHint');
+  if (!hint) return;
+  if (sel.length < 2) { hint.textContent = 'Select at least 2 characters.'; hint.style.color = '#c0392b'; return; }
+  var totalRatio = sel.reduce(function(s,id){ return s + CHARS[id].ratio; }, 0);
+  if (n % totalRatio !== 0) {
+    hint.textContent = 'For a fair split, use a multiple of ' + totalRatio + ' (e.g. ' + [1,2,3].map(function(m){return m*totalRatio;}).join(', ') + '...)';
+    hint.style.color = '#c0392b';
+  } else {
+    hint.textContent = 'Each share = ' + (n / totalRatio) + ' cookies.';
+    hint.style.color = '#3a9e5f';
+  }
+}
+
+function getSelected() {
+  return Object.keys(CHARS).filter(function(id) {
+    var chk = document.getElementById('chk-' + id);
+    return chk && chk.checked;
+  });
+}
+
+function startHard() {
+  var sel = getSelected();
+  var n   = parseInt(document.getElementById('cookieCount').value) || 0;
+  var fb  = document.getElementById('setupFb');
+  if (sel.length < 2) { fb.className='feedback bad'; fb.textContent='Pick at least 2 characters!'; return; }
+  if (n < 2)          { fb.className='feedback bad'; fb.textContent='Enter at least 2 cookies!'; return; }
+  var totalRatio = sel.reduce(function(s,id){ return s + CHARS[id].ratio; }, 0);
+  if (n % totalRatio !== 0) {
+    fb.className = 'feedback bad';
+    fb.textContent = 'Cookies must be a multiple of ' + totalRatio + ' for a fair share!';
+    return;
+  }
+  setupRound(sel, n);
+  setRosie("Share " + n + " cookies between your characters — bigger ones need more!");
+  resetPanel();
+  renderGame();
+}
+
+
+/* ======================
+   SETUP ROUND
+   ====================== */
+function setupRound(chars, cookies) {
+  currentChars = chars;
+  totalCookies = cookies;
+  cookiesLeft  = cookies;
+  assigned     = chars.map(function() { return 0; });
+}
+
+
+/* ======================
+   RENDER GAME
+   Builds pool + character cards
+   extraHTML = optional ratio hint
+   hintTip   = optional hint text
+   ====================== */
+function renderGame(extraHTML, hintTip) {
+  // build pool HTML - each cookie is a draggable span
+  var poolHTML = buildPool();
+
+  // build character cards
+  var cardsHTML = '<div class="char-grid" id="charGrid">';
+  currentChars.forEach(function(id, idx) {
+    var ch = CHARS[id];
+    cardsHTML +=
+      '<div class="char-card" id="card-' + idx + '"' +
+        ' onclick="cardClick(' + idx + ')"' +
+        ' ondragover="event.preventDefault(); this.classList.add(\'drag-over\')"' +
+        ' ondragleave="this.classList.remove(\'drag-over\')"' +
+        ' ondrop="cardDrop(event, ' + idx + ')">' +
+        '<div class="char-emoji-big">' + ch.emoji + '</div>' +
+        '<div class="char-name">' + ch.name + '</div>' +
+        '<div class="char-size">' + ch.size + '</div>' +
+        '<div class="click-hint">Click or drag cookies here</div>' +
+        '<div class="cookie-stack" id="stack-' + idx + '"></div>' +
+        '<div class="char-count"><span id="cnt-' + idx + '">0</span> 🍪</div>' +
+        '<button onclick="event.stopPropagation(); resetCard(' + idx + ')" ' +
+          'style="margin-top:4px;padding:3px 10px;font-size:11px;font-weight:bold;' +
+          'border:1px solid #aaa;background:#f0f0f0;cursor:pointer;border-radius:3px;' +
+          'color:#666">Reset</button>' +
+      '</div>';
+  });
+  cardsHTML += '</div>';
+
+  var fbHTML =
+    '<div class="feedback" id="fb"></div>' +
+    (hintTip ? '<button class="hint-btn" onclick="showHint(\'' + escQ(hintTip) + '\')">Hint</button>' : '');
+
+  setTask((extraHTML || '') + poolHTML + cardsHTML + fbHTML);
+
+  // wire up all pool cookies
+  wirePool();
+}
+
+function buildPool() {
+  var cookieSpans = '';
+  for (var i = 0; i < totalCookies; i++) {
+    cookieSpans += '<span class="pool-cookie" id="pc-' + i + '" data-idx="' + i + '">🍪</span>';
+  }
+  return (
+    '<div class="pool-section">' +
+      '<div class="pool-title">Cookie pool — <span class="pool-count" id="poolLeft">' + totalCookies + '</span> left</div>' +
+      '<div style="font-size:12px;color:#888;margin-bottom:6px">Click a cookie then click a character, or drag a cookie onto a character</div>' +
+      '<div class="pool-cookies" id="poolCookies">' + cookieSpans + '</div>' +
+      '<button onclick="resetCookies()" style="margin-top:8px;padding:5px 14px;font-size:12px;font-weight:bold;border:1px solid #aaa;background:#f0f0f0;cursor:pointer;border-radius:4px">Reset cookies</button>' +
+    '</div>'
+  );
+}
+
+// tracks which pool cookie is selected for click-to-place
+var selectedCookie = null;
+
+function wirePool() {
+  selectedCookie = null;
+  document.querySelectorAll('.pool-cookie').forEach(function(el) {
+    // click to select
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (this.style.display === 'none') return;
+      // deselect previous
+      if (selectedCookie && selectedCookie !== this) {
+        selectedCookie.style.outline = '';
+        selectedCookie.style.transform = '';
+      }
+      if (selectedCookie === this) {
+        // deselect
+        selectedCookie.style.outline = '';
+        selectedCookie.style.transform = '';
+        selectedCookie = null;
+      } else {
+        // select this cookie
+        selectedCookie = this;
+        this.style.outline = '2px solid #b94040';
+        this.style.transform = 'scale(1.3)';
+      }
+    });
+
+    // drag start
+    el.setAttribute('draggable', 'true');
+    el.addEventListener('dragstart', function(e) {
+      draggedIdx = parseInt(this.dataset.idx);
+      this.classList.add('dragging');
+      e.dataTransfer.setData('text', 'cookie');
+      // deselect any selected cookie
+      if (selectedCookie) {
+        selectedCookie.style.outline = '';
+        selectedCookie.style.transform = '';
+        selectedCookie = null;
+      }
+    });
+    el.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+    });
+  });
+}
+
+
+/* ======================
+   CARD INTERACTIONS
+   Click on card OR drop onto card
+   ====================== */
+
+// clicking the card places selected cookie onto it
+function cardClick(idx) {
+  // if a cookie is selected, place it
+  if (selectedCookie && selectedCookie.style.display !== 'none') {
+    placeCookieOnChar(idx, selectedCookie);
+    selectedCookie.style.outline = '';
+    selectedCookie.style.transform = '';
+    selectedCookie = null;
+    return;
+  }
+  // otherwise clicking the card directly also places the next available cookie
+  var nextCookie = document.querySelector('.pool-cookie:not([style*="display: none"]):not([style*="display:none"])');
+  if (nextCookie) {
+    placeCookieOnChar(idx, nextCookie);
+  }
+}
+
+// dropping a dragged cookie onto a character card
+function cardDrop(e, idx) {
+  e.preventDefault();
+  document.getElementById('card-' + idx).classList.remove('drag-over');
+  var el = document.querySelector('.pool-cookie.dragging');
+  if (el) {
+    placeCookieOnChar(idx, el);
+    draggedIdx = null;
+  }
+}
+
+// core: move one cookie from pool to character
+function placeCookieOnChar(charIdx, cookieEl) {
+  if (cookiesLeft <= 0) return;
+
+  // hide cookie from pool
+  cookieEl.style.display = 'none';
+  cookiesLeft--;
+  assigned[charIdx]++;
+
+  // update pool count
+  document.getElementById('poolLeft').textContent = cookiesLeft;
+
+  // add cookie to character stack
+  var stack = document.getElementById('stack-' + charIdx);
+  var visible = stack.querySelectorAll('.stacked-cookie').length;
+  if (visible < 10) {
+    var sc = document.createElement('div');
+    sc.className = 'stacked-cookie';
+    sc.textContent = '🍪';
+    stack.insertBefore(sc, stack.firstChild);
+  } else {
+    // show overflow text
+    var ov = stack.querySelector('.stack-overflow');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.className = 'stack-overflow';
+      stack.appendChild(ov);
+    }
+    ov.textContent = '+' + (assigned[charIdx] - 10) + ' more';
+  }
+
+  // update count label
+  document.getElementById('cnt-' + charIdx).textContent = assigned[charIdx];
+
+  // when pool is empty, check the answer
+  if (cookiesLeft <= 0) {
+    setTimeout(checkDistribution, 200);
+  }
+}
+
+
+/* ======================
+   CHECK DISTRIBUTION
+   ====================== */
+function checkDistribution() {
+  var correct = getCorrectAmounts();
+  var allRight = assigned.every(function(amt, idx) { return amt === correct[idx]; });
+
+  if (allRight) {
+    currentChars.forEach(function(_, idx) {
+      var card = document.getElementById('card-' + idx);
+      if (card) { card.classList.remove('has-cookies'); card.classList.add('correct-card'); }
+    });
+    setFB('fb', 'ok', 'Perfect! The cookies are shared correctly!');
+    showResultPanel(correct);
+    toast('Correct!');
+  } else {
+    lives = Math.max(0, lives - 1);
+    document.getElementById('livesEl').textContent = lives;
+    currentChars.forEach(function(_, idx) {
+      var card = document.getElementById('card-' + idx);
+      if (card) {
+        if (assigned[idx] === correct[idx]) card.classList.add('correct-card');
+        else card.classList.add('wrong-card');
+      }
+    });
+    setFB('fb', 'bad', 'Not quite! The red cards have the wrong amount. Click the wrong cookies back out to try again.');
+    setRosie("Hmm — the red characters have wrong amounts. Take the extra cookies back and try again!");
+    // allow clicking cookies back out of wrong cards
+    enableRetake();
+  }
+}
+
+// allow clicking a stacked cookie to return it to the pool
+function enableRetake() {
+  currentChars.forEach(function(id, idx) {
+    var card = document.getElementById('card-' + idx);
+    if (!card || !card.classList.contains('wrong-card')) return;
+    var stack = document.getElementById('stack-' + idx);
+    if (!stack) return;
+    // add click listener to return cookies
+    stack.style.cursor = 'pointer';
+    stack.title = 'Click to return a cookie';
+    stack.onclick = function() {
+      if (assigned[idx] <= 0) return;
+      assigned[idx]--;
+      cookiesLeft++;
+      // remove one stacked cookie
+      var ov = stack.querySelector('.stack-overflow');
+      var dots = stack.querySelectorAll('.stacked-cookie');
+      if (ov) {
+        var extra = assigned[idx] - 10;
+        if (extra > 0) { ov.textContent = '+' + extra + ' more'; }
+        else { stack.removeChild(ov); if (dots.length > 0) stack.removeChild(dots[0]); }
+      } else {
+        if (dots.length > 0) stack.removeChild(dots[0]);
+      }
+      document.getElementById('cnt-' + idx).textContent = assigned[idx];
+      // show a pool cookie again
+      var hidden = document.querySelector('.pool-cookie[style*="display: none"], .pool-cookie[style*="display:none"]');
+      if (hidden) { hidden.style.display = ''; hidden.style.outline = ''; hidden.style.transform = ''; }
+      document.getElementById('poolLeft').textContent = cookiesLeft;
+      // clear wrong styling
+      card.classList.remove('wrong-card', 'correct-card');
+      stack.onclick = null;
+      stack.style.cursor = '';
+      // clear feedback
+      var fb = document.getElementById('fb');
+      if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+    };
+  });
+}
+
+function getCorrectAmounts() {
+  var totalRatio = currentChars.reduce(function(s,id){ return s + CHARS[id].ratio; }, 0);
+  var part = totalCookies / totalRatio;
+  return currentChars.map(function(id){ return CHARS[id].ratio * part; });
+}
+
+// stored correct amounts for question checking
+var pendingCorrect = [];
+
+function showResultPanel(correct) {
+  pendingCorrect = correct;
+  var box = document.getElementById('answerBox');
+  box.innerHTML = '<div style="font-size:13px;font-weight:bold;color:#3a9e5f;margin-bottom:4px">Great job sharing!</div>' +
+    '<div style="font-size:12px;color:#555">Now answer the questions on the right to move on.</div>';
+
+  // build one question input per character
+  var qa = document.getElementById('questionArea');
+  qa.innerHTML = '';
+  currentChars.forEach(function(id, idx) {
+    var ch = CHARS[id];
+    var div = document.createElement('div');
+    div.style.cssText = 'background:white;border:2px solid #ccc;border-radius:6px;padding:10px;';
+    div.innerHTML =
+      '<div style="font-size:20px;margin-bottom:4px">' + ch.emoji + '</div>' +
+      '<div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:6px">How many cookies does ' + ch.name + ' get?</div>' +
+      '<input id="qinp' + idx + '" type="number" min="0" max="200" placeholder="?"' +
+        ' style="width:100%;height:40px;border:2px solid #333;font-size:18px;text-align:center;font-weight:bold;border-radius:4px;outline:none;"' +
+        ' onkeydown="if(event.key===&#39;Enter&#39;) checkQuestions()"/>';
+    qa.appendChild(div);
+  });
+
+  qa.style.display = 'flex';
+  document.getElementById('checkQBtn').style.display = 'block';
+  document.getElementById('answerFeedback').className = 'answer-feedback';
+
+  // focus first input
+  setTimeout(function() {
+    var first = document.getElementById('qinp0');
+    if (first) first.focus();
+  }, 100);
+}
+
+function showComparisonQuestion() {
+  var qa = document.getElementById('questionArea');
+  var c0 = CHARS[currentChars[0]], c1 = CHARS[currentChars[1]];
+  var bigger = c0.ratio > c1.ratio ? c0 : c1;
+  var smaller = c0.ratio > c1.ratio ? c1 : c0;
+  var times = bigger.ratio / smaller.ratio;
+  var compDiv = document.createElement('div');
+  compDiv.style.cssText = 'margin-top:10px;background:#eef6ff;border:2px solid #2980b9;border-radius:6px;padding:10px';
+  compDiv.innerHTML =
+    '<div style="font-size:12px;font-weight:bold;color:#1a4f7a;margin-bottom:6px">Bonus question!</div>'+
+    '<div style="font-size:13px;font-weight:bold;margin-bottom:8px">How many times bigger is '+bigger.emoji+' '+bigger.name+' compared to '+smaller.emoji+' '+smaller.name+'?</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+      '<input id="compInp" type="number" min="1" max="20" placeholder="?" '+
+        'style="width:65px;height:40px;border:2px solid #333;font-size:18px;text-align:center;font-weight:bold;border-radius:4px;outline:none"/>'+
+      '<span style="font-size:13px;font-weight:bold">times bigger</span>'+
+      '<button onclick="checkComp('+times+')" style="padding:6px 12px;background:#2980b9;color:white;border:none;font-size:13px;font-weight:bold;cursor:pointer;border-radius:4px">Check!</button>'+
+    '</div>'+
+    '<div id="compFb" style="font-size:12px;font-weight:bold;margin-top:6px"></div>';
+  qa.appendChild(compDiv);
+  document.getElementById('nextPanelBtn').classList.add('show');
+}
+
+function checkComp(correct) {
+  var val = parseInt(document.getElementById('compInp').value);
+  var fb = document.getElementById('compFb');
+  if (val === correct) {
+    fb.style.color = '#1a5c35';
+    fb.textContent = 'Yes! ' + correct + ' times bigger. Correct!';
+    document.getElementById('compInp').style.borderColor = '#27ae60';
+    document.getElementById('compInp').style.background = '#d5f5e3';
+  } else {
+    fb.style.color = '#c0392b';
+    fb.textContent = 'Not quite! Hint: divide the bigger ratio by the smaller ratio.';
+    document.getElementById('compInp').value = '';
+  }
+}
+
+function checkQuestions() {
+  var allCorrect = true;
+  var wrongCount = 0;
+
+  currentChars.forEach(function(id, idx) {
+    var inp = document.getElementById('qinp' + idx);
+    if (!inp) return;
+    var val = parseInt(inp.value);
+    if (val === pendingCorrect[idx]) {
+      inp.style.borderColor = '#27ae60';
+      inp.style.background = '#d5f5e3';
+    } else {
+      inp.style.borderColor = '#c0392b';
+      inp.style.background = '#fadbd8';
+      allCorrect = false;
+      wrongCount++;
+    }
+  });
+
+  var fb = document.getElementById('answerFeedback');
+  if (allCorrect) {
+    fb.className = 'answer-feedback ok';
+    var isEqual = currentChars.every(function(id){ return CHARS[id].ratio === CHARS[currentChars[0]].ratio; });
+    var totalRatio = currentChars.reduce(function(s,id){ return s + CHARS[id].ratio; }, 0);
+    var part = totalCookies / totalRatio;
+    if (isEqual) {
+      fb.textContent = totalCookies + ' ÷ ' + currentChars.length + ' = ' + pendingCorrect[0] + ' each. Correct!';
+    } else {
+      fb.textContent = totalCookies + ' ÷ ' + totalRatio + ' shares = ' + part + ' per share. Correct!';
+    }
+    document.getElementById('checkQBtn').style.display = 'none';
+    // Show comparison question if 2 different characters
+    if (!isEqual && currentChars.length === 2) {
+      showComparisonQuestion();
+    } else {
+      document.getElementById('nextPanelBtn').classList.add('show');
+    }
+  } else {
+    fb.className = 'answer-feedback bad';
+    fb.textContent = wrongCount + ' answer' + (wrongCount > 1 ? 's' : '') + ' wrong — have another look!';
+    lives = Math.max(0, lives - 1);
+    document.getElementById('livesEl').textContent = lives;
+    // clear wrong inputs after a moment
+    setTimeout(function() {
+      currentChars.forEach(function(id, idx) {
+        var inp = document.getElementById('qinp' + idx);
+        if (!inp) return;
+        if (inp.style.borderColor === 'rgb(192, 57, 43)') {
+          inp.style.borderColor = '#333';
+          inp.style.background = '';
+          inp.value = '';
+        }
+      });
+    }, 1000);
+  }
+}
+
+
+/* ======================
+   ROUND PROGRESSION
+   ====================== */
+function nextRound() {
+  if (diff === 'hard') {
+    hardRi++;
+    if (hardRi >= HARD_TOTAL) {
+      endGame();
+    } else {
+      renderHard();
+    }
+    return;
+  }
+  ri++;
+  var rounds = diff === 'easy' ? easyRounds : medRounds;
+  if (ri >= rounds.length) { endGame(); return; }
+  if (diff === 'easy') renderEasy(); else renderMedium();
+}
+
+
+/* ======================
+   HELPERS
+   ====================== */
+function setTask(html) {
+  document.getElementById('taskArea').innerHTML =
+    '<div class="rosie-row"><div class="rosie-img">🐰</div><div class="speech" id="speechEl">...</div></div>' +
+    html;
+}
+function setRosie(msg) { var el=document.getElementById('speechEl'); if(el) el.textContent=msg; }
+function resetPanel() {
+  document.getElementById('answerBox').innerHTML = '<span style="color:#aaa;font-size:13px">Drag or click cookies onto each character!</span>';
+  document.getElementById('answerFeedback').className = 'answer-feedback';
+  document.getElementById('nextPanelBtn').className = 'next-panel-btn';
+  var qa = document.getElementById('questionArea');
+  if (qa) { qa.style.display = 'none'; qa.innerHTML = ''; }
+  var cb = document.getElementById('checkQBtn');
+  if (cb) cb.style.display = 'none';
+  pendingCorrect = [];
+}
+function setFB(id, cls, msg) { var el=document.getElementById(id); if(el){el.className='feedback '+cls;el.textContent=msg;} }
+function showHint(tip) { var fb=document.getElementById('fb'); if(fb){fb.className='feedback hint';fb.textContent='Hint: '+tip;} }
+function escQ(s) { return (s||'').replace(/'/g,"&#39;"); }
+function toast(msg) {
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},1400);
+}
+
+
+/* ======================
+   DIFFICULTY BUTTONS
+   ====================== */
+document.querySelectorAll('.diff-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    diff = this.dataset.d;
+    document.querySelectorAll('.diff-btn').forEach(function(b){b.className='diff-btn';});
+    this.classList.add('active-' + diff);
+    var notices = {
+      easy:   'Easy - Share cookies equally between two characters!',
+      medium: 'Medium - Share cookies fairly — bigger characters need more shares!',
+      hard:   'Hard - You choose the characters and cookie count!'
+    };
+    var colors = {
+      easy:   {bg:'#eafaf1',color:'#1a5c35',border:'#3a9e5f'},
+      medium: {bg:'#fef9ec',color:'#784212',border:'#e07820'},
+      hard:   {bg:'#fde8e8',color:'#7b241c',border:'#b94040'}
+    };
+    var nb = document.getElementById('noticeBar');
+    nb.textContent = notices[diff];
+    nb.style.backgroundColor = colors[diff].bg;
+    nb.style.color = colors[diff].color;
+    nb.style.borderLeftColor = colors[diff].border;
+    startGame();
+  });
+});
+
+
+/* ======================
+   END + START
+   ====================== */
+
+
+function resetCard(idx) {
+  // return all cookies from this one character back to the pool
+  var n = assigned[idx];
+  if (n <= 0) return;
+  cookiesLeft += n;
+  assigned[idx] = 0;
+
+  // clear stack
+  var stack = document.getElementById('stack-' + idx);
+  if (stack) { stack.innerHTML = ''; stack.onclick = null; stack.style.cursor = ''; }
+  var cnt = document.getElementById('cnt-' + idx);
+  if (cnt) cnt.textContent = '0';
+  var card = document.getElementById('card-' + idx);
+  if (card) card.classList.remove('correct-card', 'wrong-card', 'has-cookies');
+
+  // show that many pool cookies again
+  var hidden = document.querySelectorAll('.pool-cookie[style*="display: none"], .pool-cookie[style*="display:none"]');
+  var shown = 0;
+  hidden.forEach(function(el) {
+    if (shown < n) { el.style.display = ''; el.style.outline = ''; el.style.transform = ''; shown++; }
+  });
+  document.getElementById('poolLeft').textContent = cookiesLeft;
+
+  // clear feedback
+  var fb = document.getElementById('fb');
+  if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+}
+
+function resetCookies() {
+  // return all cookies to pool, clear all stacks
+  cookiesLeft = totalCookies;
+  assigned = currentChars.map(function() { return 0; });
+  selectedCookie = null;
+
+  // show all pool cookies again
+  document.querySelectorAll('.pool-cookie').forEach(function(el) {
+    el.style.display = '';
+    el.style.outline = '';
+    el.style.transform = '';
+    el.classList.remove('dragging');
+  });
+  document.getElementById('poolLeft').textContent = totalCookies;
+
+  // clear all stacks and counts
+  currentChars.forEach(function(_, idx) {
+    var stack = document.getElementById('stack-' + idx);
+    if (stack) { stack.innerHTML = ''; stack.onclick = null; stack.style.cursor = ''; }
+    var cnt = document.getElementById('cnt-' + idx);
+    if (cnt) cnt.textContent = '0';
+    var card = document.getElementById('card-' + idx);
+    if (card) card.classList.remove('correct-card', 'wrong-card', 'has-cookies');
+  });
+
+  // clear feedback
+  var fb = document.getElementById('fb');
+  if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+
+  wirePool();
+}
+
+function startGame() {
+  lives=3; ri=0; hardRi=0; selectedCookie=null; draggedIdx=null;
+  document.getElementById('livesEl').textContent='3';
+  document.getElementById('answerPanel').style.display='flex';
+  if      (diff==='easy')   renderEasy();
+  else if (diff==='medium') renderMedium();
+  else                      renderHard();
+}
+
+function endGame() {
+  var maxStars    = diff === 'hard' ? 6 : 3;
+  var earnedStars = diff === 'hard'
+    ? Math.min(6, Math.max(1, lives * 2))
+    : Math.min(3, Math.max(1, lives));
+
+  var totalRounds = diff === 'easy' ? easyRounds.length : diff === 'medium' ? medRounds.length : 1;
+  saveToServer(true, totalRounds, totalRounds, earnedStars, diff);
+
+  if (!window._cookieDone) window._cookieDone = {};
+  window._cookieDone[diff] = true;
+
+  var starsHTML = '';
+  for (var s = 1; s <= maxStars; s++) {
+    starsHTML += s <= earnedStars
+      ? '<span style="color:#2e7d52;font-size:1.9rem">&#9733;</span>'
+      : '<span style="color:#ddd;font-size:1.9rem">&#9733;</span>';
+  }
+
+  var allDiffs = ['easy', 'medium', 'hard'];
+  var nextDiff = null;
+  for (var i = 0; i < allDiffs.length; i++) {
+    if (!window._cookieDone[allDiffs[i]]) { nextDiff = allDiffs[i]; break; }
+  }
+  var clr = { easy:'#3a9e5f', medium:'#e07820', hard:'#b94040' };
+  var nextBtn = nextDiff
+    ? '<br><button class="play-again" data-nd="' + nextDiff + '" id="ndBtn" style="background:' + clr[nextDiff] + ';margin-top:12px">'
+        + 'Try ' + nextDiff.charAt(0).toUpperCase() + nextDiff.slice(1) + '! &#8594;</button>'
+    : '<br><button class="play-again" id="ndBtn" data-nd="home" style="background:#2e7d52;margin-top:12px">All done! Go Home &#127942;</button>';
+
+  document.getElementById('answerPanel').style.display = 'none';
+  document.getElementById('taskArea').innerHTML =
+    '<div class="completion">' +
+      '<div style="font-size:52px;margin-bottom:8px">&#127942;</div>' +
+      '<h2>Congratulations!</h2>' +
+      '<p style="color:#666;font-size:14px;margin-bottom:8px">' + diff.charAt(0).toUpperCase() + diff.slice(1) + ' complete!</p>' +
+      '<p style="font-weight:bold;font-size:14px;margin-bottom:6px">You earned:</p>' +
+      '<div>' + starsHTML + '</div>' +
+      '<p style="font-size:13px;color:#888;margin-top:4px">' + earnedStars + ' / ' + maxStars + ' stars</p>' +
+      nextBtn +
+      '<br><button class="play-again" style="background:#555;font-size:.8rem;padding:7px 14px;margin-top:10px" '
+        + 'onclick="startGame()">Play again</button>' +
+      '&#160;<a href="/" class="btn sm red" style="margin-left:6px">&#8592; Home</a>' +
+    '</div>';
+
+  // Wire up the next-diff button using setTimeout to ensure DOM is ready
+  setTimeout(function() {
+    var btn = document.getElementById('ndBtn');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var nd = this.getAttribute('data-nd');
+        if (nd === 'home') { location.href = '/'; }
+        else { switchDiff(nd); }
+      });
+    }
+  }, 50);
+}
+
+function switchDiff(newDiff) {
+  diff = newDiff;
+  document.querySelectorAll('.diff-btn').forEach(function(b){ b.className = 'diff-btn'; });
+  var ab = document.querySelector('.diff-btn[data-d="' + newDiff + '"]');
+  if (ab) ab.classList.add('active-' + newDiff);
+  var notices = {
+    easy:   'Easy - Share cookies equally between two characters!',
+    medium: 'Medium - Share cookies fairly — bigger characters need more shares!',
+    hard:   'Hard - You choose the characters and cookie count!'
+  };
+  var colors = {
+    easy:   {bg:'#eafaf1', color:'#1a5c35', border:'#3a9e5f'},
+    medium: {bg:'#fef9ec', color:'#784212', border:'#e07820'},
+    hard:   {bg:'#fde8e8', color:'#7b241c', border:'#b94040'}
+  };
+  var nb = document.getElementById('noticeBar');
+  if (nb) {
+    nb.textContent = notices[newDiff];
+    nb.style.backgroundColor = colors[newDiff].bg;
+    nb.style.color = colors[newDiff].color;
+    nb.style.borderLeftColor = colors[newDiff].border;
+  }
+  startGame();
+}
+
+startGame();
+</script>
+{% endblock %}

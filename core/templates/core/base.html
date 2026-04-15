@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{% block title %}Maths Mayhem{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:#f5ede0;color:#1a1a1a;min-height:100vh}
+    h1,h2,h3{font-family:'Baloo 2',cursive;font-weight:800}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:.7rem 1.5rem;background:#fff;border-bottom:3px solid #1a1a1a}
+    .brand{font-family:'Baloo 2',cursive;font-weight:800;font-size:1.15rem;color:#c0392b;text-decoration:none}
+    .brand:hover{color:#922b21}
+    .topnav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pill{display:inline-block;padding:4px 11px;border:2px solid #1a1a1a;background:#f5ede0;font-family:'Baloo 2',cursive;font-size:.8rem;font-weight:700;text-decoration:none;color:#1a1a1a;box-shadow:2px 2px 0 #1a1a1a;transition:transform .1s,box-shadow .1s;cursor:pointer}
+    .pill:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #1a1a1a;color:#1a1a1a}
+    .pill.red{background:#c0392b;color:#fff;border-color:#c0392b}
+    .pill.gold{background:#f5a623;color:#fff;border-color:#c47d10}
+    .page{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem}
+    .btn{display:inline-block;padding:.55rem 1.3rem;background:#1a1a1a;color:#fff;border:2.5px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:4px 4px 0 #888;transition:transform .1s,box-shadow .1s}
+    .btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #888;color:#fff}
+    .btn.red{background:#c0392b;border-color:#c0392b}
+    .btn.sm{padding:.32rem .85rem;font-size:.8rem;box-shadow:3px 3px 0 #888}
+    /* logout form — looks like a pill button */
+    .logout-form{display:inline;margin:0;padding:0}
+    .logout-form button{display:inline-block;padding:4px 11px;border:2px solid #c0392b;background:#c0392b;font-family:'Baloo 2',cursive;font-size:.8rem;font-weight:700;color:#fff;cursor:pointer;box-shadow:2px 2px 0 #1a1a1a;transition:transform .1s,box-shadow .1s}
+    .logout-form button:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #1a1a1a}
+    {% block extra_styles %}{% endblock %}
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav class="topbar">
+  <a class="brand" href="{% url 'core:tasks' %}">🧮 Maths Mayhem</a>
+  <div class="topnav">
+    <span class="pill">👋 {{ request.user.username }}</span>
+    {% if request.user.userprofile.role == 'teacher' %}
+      <a class="pill" style="background:#2980b9;color:#fff;border-color:#1a5f8f" href="{% url 'core:teacher_dashboard' %}">📊 Dashboard</a>
+    {% else %}
+      <a class="pill" href="{% url 'core:tasks' %}">🏠 Home</a>
+      <a class="pill gold" href="{% url 'core:shop' %}">🛍️ Shop</a>
+    {% endif %}
+    <!-- Logout as POST form — required in Django 5+ -->
+    <form class="logout-form" method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Log out</button>
+    </form>
+  </div>
+</nav>
+{% block content %}{% endblock %}
+</body>
+</html>

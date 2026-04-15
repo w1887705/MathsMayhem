@@ -1,0 +1,63 @@
+from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.utils.html import format_html
+from .models import Task, Progress, Attempt, UserProfile, Classroom, ShopItem, UserShopItem
+
+User = get_user_model()
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display  = ("order", "title", "slug", "is_available")
+    list_editable = ("is_available",)
+    ordering      = ("order",)
+
+
+@admin.register(Progress)
+class ProgressAdmin(admin.ModelAdmin):
+    list_display  = ("user", "task", "easy_stars", "medium_stars", "hard_stars",
+                     "stars", "completed", "last_score", "updated_at")
+    list_filter   = ("completed", "task")
+    search_fields = ("user__username",)
+    ordering      = ("-updated_at",)
+
+
+@admin.register(Attempt)
+class AttemptAdmin(admin.ModelAdmin):
+    list_display  = ("user", "task", "score", "created_at")
+    list_filter   = ("task",)
+    search_fields = ("user__username",)
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display  = ("user", "role", "classroom", "total_stars")
+    list_filter   = ("role", "classroom")
+    search_fields = ("user__username",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("user", "classroom")
+
+
+@admin.register(Classroom)
+class ClassroomAdmin(admin.ModelAdmin):
+    list_display  = ("name", "join_code", "teacher", "student_count", "created_at")
+    search_fields = ("name", "join_code", "teacher__username")
+
+    def student_count(self, obj):
+        return obj.students.count()
+    student_count.short_description = "Students"
+
+
+@admin.register(ShopItem)
+class ShopItemAdmin(admin.ModelAdmin):
+    list_display  = ("emoji", "name", "task_tag", "theme_key", "cost", "is_available")
+    list_editable = ("is_available", "cost")
+    list_filter   = ("task_tag", "is_available")
+
+
+@admin.register(UserShopItem)
+class UserShopItemAdmin(admin.ModelAdmin):
+    list_display  = ("user", "item", "purchased_at")
+    list_filter   = ("item__task_tag",)
+    search_fields = ("user__username",)

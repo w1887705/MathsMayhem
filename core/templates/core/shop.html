@@ -1,0 +1,238 @@
+{% extends "core/base.html" %}
+{% block title %}Shop – Maths Mayhem{% endblock %}
+
+{% block extra_styles %}
+.shop-page{max-width:940px;margin:0 auto;padding:1.5rem 1.25rem}
+.shop-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem}
+.star-bal{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;background:#fff3c4;border:3px solid #f5a623;padding:8px 18px;box-shadow:3px 3px 0 #c47d10}
+.how-box{background:#fff;border:2px solid #1a1a1a;padding:.9rem 1.1rem;box-shadow:3px 3px 0 #888;margin-bottom:1.4rem;font-size:.85rem;color:#444;line-height:1.7}
+.how-box strong{color:#c0392b}
+/* section */
+.section-wrap{margin-bottom:1.8rem}
+.section-title{font-family:'Baloo 2',cursive;font-size:1.05rem;font-weight:800;margin-bottom:.7rem;border-left:5px solid #c0392b;padding-left:.65rem;display:flex;align-items:center;gap:.4rem}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:1rem}
+/* card */
+.shop-card{background:#fff;border:3px solid #1a1a1a;box-shadow:5px 5px 0 #1a1a1a;padding:1.1rem;text-align:center;display:flex;flex-direction:column;gap:.4rem;position:relative;transition:transform .1s}
+.shop-card:hover{transform:translate(-1px,-1px)}
+.s-emoji{font-size:2.5rem;line-height:1}
+.s-name{font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:800}
+.s-preview{font-size:.7rem;color:#888;line-height:1.35;min-height:2.5rem}
+.s-desc{font-size:.75rem;color:#555;flex:1;line-height:1.45}
+.s-cost{font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;color:#f5a623;margin:.1rem 0}
+/* buttons */
+.buy-btn{width:100%;padding:.5rem .9rem;background:#c0392b;color:#fff;border:2.5px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:.82rem;font-weight:800;cursor:pointer;box-shadow:3px 3px 0 #1a1a1a;transition:all .1s;margin-top:.2rem}
+.buy-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a1a1a}
+.buy-btn:disabled{background:#bbb;border-color:#999;color:#fff;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 #888}
+.owned-badge{background:#e8f5ef;border:2.5px solid #2e7d52;color:#1a4d35;font-family:'Baloo 2',cursive;font-size:.8rem;font-weight:800;padding:5px 10px;box-shadow:2px 2px 0 #2e7d52;display:inline-block;margin-top:.2rem}
+/* toast */
+.shop-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(60px);font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;padding:10px 22px;border:2.5px solid #1a1a1a;z-index:9999;transition:transform .3s;pointer-events:none;box-shadow:3px 3px 0 #1a1a1a}
+.shop-toast.show{transform:translateX(-50%) translateY(0)}
+.shop-toast.ok{background:#d5f5e3;color:#1a4d35}
+.shop-toast.bad{background:#fde8e8;color:#7b241c}
+.empty-msg{color:#888;font-style:italic;font-size:.85rem;padding:1rem}
+{% endblock %}
+
+{% block content %}
+<div class="shop-page">
+
+  <div class="shop-header">
+    <div>
+      <h1>🛍️ Shop</h1>
+      <p style="color:#666;font-size:.85rem;margin-top:.3rem">Spend your stars on themes that change how each task looks!</p>
+    </div>
+    <span class="star-bal" id="starBal">⭐ {{ total_stars }} star{% if total_stars != 1 %}s{% endif %}</span>
+  </div>
+
+  <div class="how-box">
+    <strong>Earning stars:</strong> Complete a task difficulty to earn stars.
+    Easy = up to 3 ⭐, Medium = up to 3 ⭐, Hard = up to 6 ⭐ (based on how many lives you have left).<br>
+    <strong>Spending stars:</strong> Buy a theme pack below. It activates automatically the next time you open that task.
+    Your total stars: <strong id="starCount">{{ total_stars }}</strong>.
+  </div>
+
+  <!-- ══ RIBBON PACKS ══ -->
+  <div class="section-wrap">
+    <div class="section-title">🎀 Ribbon Task — Colour Packs</div>
+    {% if grouped.ribbon %}
+    <div class="shop-grid">
+      {% for entry in grouped.ribbon %}
+      <div class="shop-card">
+        <div class="s-emoji">{{ entry.item.emoji }}</div>
+        <div class="s-name">{{ entry.item.name }}</div>
+        <div class="s-desc">{{ entry.item.description }}</div>
+        <div class="s-cost">⭐ {{ entry.item.cost }} stars</div>
+        {% if entry.owned %}
+          <span class="owned-badge">✅ Owned</span>
+        {% else %}
+          <button class="buy-btn"
+            id="btn{{ entry.item.id }}"
+            data-id="{{ entry.item.id }}"
+            data-cost="{{ entry.item.cost }}"
+            data-name="{{ entry.item.name }}"
+            onclick="buyItem(this)"
+            {% if total_stars < entry.item.cost %}disabled{% endif %}>
+            {% if total_stars < entry.item.cost %}
+              Need {{ entry.item.cost }} ⭐
+            {% else %}
+              Buy for {{ entry.item.cost }} ⭐
+            {% endif %}
+          </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="empty-msg">No ribbon packs available yet — check back soon!</p>
+    {% endif %}
+  </div>
+
+  <!-- ══ COOKIE PACKS ══ -->
+  <div class="section-wrap">
+    <div class="section-title">🍪 Cookie Task — Character Packs</div>
+    {% if grouped.cookie %}
+    <div class="shop-grid">
+      {% for entry in grouped.cookie %}
+      <div class="shop-card">
+        <div class="s-emoji">{{ entry.item.emoji }}</div>
+        <div class="s-name">{{ entry.item.name }}</div>
+        <div class="s-desc">{{ entry.item.description }}</div>
+        <div class="s-cost">⭐ {{ entry.item.cost }} stars</div>
+        {% if entry.owned %}
+          <span class="owned-badge">✅ Owned</span>
+        {% else %}
+          <button class="buy-btn"
+            id="btn{{ entry.item.id }}"
+            data-id="{{ entry.item.id }}"
+            data-cost="{{ entry.item.cost }}"
+            data-name="{{ entry.item.name }}"
+            onclick="buyItem(this)"
+            {% if total_stars < entry.item.cost %}disabled{% endif %}>
+            {% if total_stars < entry.item.cost %}
+              Need {{ entry.item.cost }} ⭐
+            {% else %}
+              Buy for {{ entry.item.cost }} ⭐
+            {% endif %}
+          </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="empty-msg">No cookie packs available yet — check back soon!</p>
+    {% endif %}
+  </div>
+
+  <!-- ══ PIZZA PACKS ══ -->
+  <div class="section-wrap">
+    <div class="section-title">🍕 Pizza Task — Theme Packs</div>
+    {% if grouped.pizza %}
+    <div class="shop-grid">
+      {% for entry in grouped.pizza %}
+      <div class="shop-card">
+        <div class="s-emoji">{{ entry.item.emoji }}</div>
+        <div class="s-name">{{ entry.item.name }}</div>
+        <div class="s-desc">{{ entry.item.description }}</div>
+        <div class="s-cost">⭐ {{ entry.item.cost }} stars</div>
+        {% if entry.owned %}
+          <span class="owned-badge">✅ Owned</span>
+        {% else %}
+          <button class="buy-btn"
+            id="btn{{ entry.item.id }}"
+            data-id="{{ entry.item.id }}"
+            data-cost="{{ entry.item.cost }}"
+            data-name="{{ entry.item.name }}"
+            onclick="buyItem(this)"
+            {% if total_stars < entry.item.cost %}disabled{% endif %}>
+            {% if total_stars < entry.item.cost %}
+              Need {{ entry.item.cost }} ⭐
+            {% else %}
+              Buy for {{ entry.item.cost }} ⭐
+            {% endif %}
+          </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="empty-msg">No pizza packs available yet — check back soon!</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="shop-toast" id="shopToast"></div>
+
+<script>
+var currentStars = {{ total_stars }};
+
+function showToast(msg, type) {
+  var t = document.getElementById('shopToast');
+  t.textContent = msg;
+  t.className = 'shop-toast ' + type + ' show';
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+function updateStarDisplay(newTotal) {
+  currentStars = newTotal;
+  var label = newTotal + ' star' + (newTotal !== 1 ? 's' : '');
+  document.getElementById('starBal').textContent = '⭐ ' + label;
+  document.getElementById('starCount').textContent = newTotal;
+
+  // Re-disable any buttons the user can no longer afford
+  document.querySelectorAll('.buy-btn:not([disabled])').forEach(function(btn) {
+    var cost = parseInt(btn.getAttribute('data-cost'));
+    if (cost > newTotal) {
+      btn.disabled = true;
+      btn.textContent = 'Need ' + cost + ' ⭐';
+    }
+  });
+}
+
+function buyItem(btn) {
+  var itemId = btn.getAttribute('data-id');
+  var cost   = parseInt(btn.getAttribute('data-cost'));
+  var name   = btn.getAttribute('data-name');
+
+  // Client-side stars check first
+  if (currentStars < cost) {
+    showToast('Not enough stars! Do more tasks to earn stars ⭐', 'bad');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Buying...';
+
+  fetch('/shop/buy/' + itemId + '/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.ok) {
+      // Replace button with owned badge
+      btn.outerHTML = '<span class="owned-badge">✅ Owned</span>';
+      updateStarDisplay(d.remaining_stars);
+      showToast('🎉 ' + name + ' unlocked! Open the task to see it.', 'ok');
+    } else {
+      // Server rejected (race condition, already owned, etc.)
+      var errMsg = d.error || 'Something went wrong';
+      if (errMsg === 'Not enough stars') {
+        showToast('Not enough stars! Do more tasks to earn more ⭐', 'bad');
+      } else {
+        showToast(errMsg, 'bad');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Buy for ' + cost + ' ⭐';
+    }
+  })
+  .catch(function() {
+    showToast('Connection error — try again', 'bad');
+    btn.disabled = false;
+    btn.textContent = 'Buy for ' + cost + ' ⭐';
+  });
+}
+</script>
+{% endblock %}

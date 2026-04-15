@@ -1,0 +1,257 @@
+{% extends "core/base.html" %}
+{% block title %}Home – Maths Mayhem{% endblock %}
+{% block extra_styles %}
+.page-title{margin-bottom:.2rem}
+.intro{color:#666;font-size:.9rem;margin-bottom:1rem}
+.top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.star-total{font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;background:#fff3c4;border:2px solid #f5a623;padding:4px 12px;box-shadow:2px 2px 0 #c47d10}
+.shop-btn{font-family:'Baloo 2',cursive;font-size:.85rem;font-weight:800;background:#f5a623;color:#fff;border:2.5px solid #1a1a1a;padding:6px 16px;box-shadow:3px 3px 0 #1a1a1a;cursor:pointer;text-decoration:none;display:inline-block}
+.shop-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a1a1a;color:#fff}
+/* progress row */
+.prog-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.prog-lbl{font-family:'Baloo 2',cursive;font-size:.82rem;font-weight:800;border:2px solid #1a1a1a;padding:3px 9px;background:#fff;box-shadow:2px 2px 0 #1a1a1a;white-space:nowrap}
+.prog-track{flex:1;height:13px;background:#e5ddd4;border:2px solid #1a1a1a;overflow:hidden;box-shadow:2px 2px 0 #1a1a1a}
+.prog-fill{height:100%;background:#c0392b;transition:width .8s ease}
+/* progress checker btn */
+.progress-btn{font-family:'Baloo 2',cursive;font-size:.8rem;font-weight:800;background:#fff;border:2px solid #1a1a1a;padding:4px 12px;box-shadow:2px 2px 0 #1a1a1a;cursor:pointer;transition:all .1s;margin-bottom:1rem}
+.progress-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #1a1a1a}
+/* modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border:3px solid #1a1a1a;box-shadow:8px 8px 0 #1a1a1a;padding:1.5rem;max-width:500px;width:95%;position:relative}
+.modal h2{font-family:'Baloo 2',cursive;margin-bottom:1rem;font-size:1.1rem}
+.modal-close{position:absolute;top:.7rem;right:.9rem;font-size:1.3rem;cursor:pointer;font-weight:bold;background:none;border:none;line-height:1}
+/* progress table */
+.prog-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.prog-table th{font-family:'Baloo 2',cursive;padding:6px 10px;background:#f5ede0;border:2px solid #1a1a1a;font-size:.8rem;text-align:left}
+.prog-table td{padding:7px 10px;border:1.5px solid #ddd;vertical-align:middle}
+.prog-table tr:nth-child(even) td{background:#fafafa}
+.cell-done{background:#d5f5e3 !important;color:#1a5c35;font-weight:800;font-family:'Baloo 2',cursive;font-size:.78rem;text-align:center}
+.cell-todo{background:#fff !important;color:#aaa;font-family:'Baloo 2',cursive;font-size:.78rem;text-align:center}
+.cell-stars{font-size:.95rem;letter-spacing:2px}
+.task-name-cell{font-family:'Baloo 2',cursive;font-weight:800;font-size:.85rem}
+/* task grid */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.tcard{background:#fff;border:3px solid #1a1a1a;overflow:hidden;box-shadow:5px 5px 0 #1a1a1a;display:flex;flex-direction:column}
+.tbar{height:5px;background:#c0392b}
+.tbar.grey{background:#aaa}
+.tbody{padding:.85rem 1rem;flex:1}
+.tbody h3{font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:800;margin-bottom:.22rem}
+.tbody p{font-size:.76rem;color:#666;line-height:1.45;margin-bottom:.6rem}
+.diff-stars-wrap{margin-top:.4rem}
+.diff-row-label{font-family:'Baloo 2',cursive;font-size:.7rem;color:#888;font-weight:800;margin-bottom:.3rem}
+.diff-stars-row{display:flex;flex-direction:column;gap:4px}
+.diff-line{display:flex;align-items:center;gap:6px}
+.diff-tag{font-family:'Baloo 2',cursive;font-size:.65rem;font-weight:800;padding:1px 6px;border:1.5px solid;border-radius:2px;min-width:50px;text-align:center}
+.diff-tag.easy{background:#d5f5e3;border-color:#2e7d52;color:#1a4d35}
+.diff-tag.medium{background:#fef3cd;border-color:#d97706;color:#7c4a00}
+.diff-tag.hard{background:#fde8e8;border-color:#c0392b;color:#7b241c}
+.diff-star{font-size:.75rem;line-height:1}
+.star-on{color:#2e7d52}
+.star-off{color:#ddd}
+.tfoot{display:flex;justify-content:space-between;align-items:center;padding:.4rem 1rem .65rem;border-top:2px dashed #e0d8cf;margin-top:auto}
+.bdone{background:#e8f5ef;border:2px solid #2e7d52;color:#1a4d35;font-family:'Baloo 2',cursive;font-size:.73rem;font-weight:800;padding:2px 8px;box-shadow:2px 2px 0 #2e7d52}
+.btodo{background:#fff;border:2px solid #ccc;color:#888;font-family:'Baloo 2',cursive;font-size:.73rem;font-weight:800;padding:2px 8px;box-shadow:2px 2px 0 #ccc}
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="top-row">
+    <div>
+      <h1 class="page-title">🎮 Choose a task!</h1>
+      <p class="intro">Pick a maths challenge. Progress is saved automatically.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap">
+      <span class="star-total">⭐ {{ total_stars }} stars</span>
+      <a class="shop-btn" href="{% url 'core:shop' %}">🛍️ Shop</a>
+      <a class="shop-btn" href="{% url 'core:join_class' %}" style="background:#2e7d52;border-color:#1a5c35">🏫 Join class</a>
+    </div>
+  </div>
+
+  <!-- progress bar — counts all 9 difficulties -->
+  <div class="prog-row">
+    <span class="prog-lbl">{{ completed_count }} / {{ total }} done</span>
+    <div class="prog-track"><div class="prog-fill" style="width:{{ percent }}%"></div></div>
+    <span class="prog-lbl">{{ percent }}%</span>
+  </div>
+  <div style="font-size:.75rem;color:#888;margin-bottom:.75rem">
+    3 tasks × 3 difficulties = {{ total }} total. Each difficulty counts as 1.
+  </div>
+
+  <!-- progress checker button -->
+  <button class="progress-btn" onclick="openModal()">📊 View progress table</button>
+
+  <div class="tgrid">
+    {% for item in items %}
+
+      {% if item.task.slug == "task-10-ribbon" %}
+      <div class="tcard">
+        <div class="tbar"></div>
+        <div class="tbody">
+          <h3>🎀 {{ item.task.title }}</h3>
+          <p>Drag bows onto the ribbon and discover how size and division are connected!</p>
+          <div class="diff-stars-wrap">
+            <div class="diff-row-label">{{ item.diffs_done }}/3 difficulties done</div>
+            <div class="diff-stars-row">
+              <div class="diff-line">
+                <span class="diff-tag easy">Easy</span>
+                {% for s in "123" %}{% if forloop.counter <= item.easy_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+              <div class="diff-line">
+                <span class="diff-tag medium">Medium</span>
+                {% for s in "123" %}{% if forloop.counter <= item.medium_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+              <div class="diff-line">
+                <span class="diff-tag hard">Hard</span>
+                {% for s in "123456" %}{% if forloop.counter <= item.hard_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tfoot">
+          {% if item.diffs_done == 3 %}<span class="bdone">✅ All done</span>{% elif item.diffs_done > 0 %}<span class="bdone">🔥 {{ item.diffs_done }}/3</span>{% else %}<span class="btodo">⏳ To do</span>{% endif %}
+          <a href="{% url 'core:task_detail' item.task.slug %}" class="btn sm red">Play ▶</a>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if item.task.slug == "task-12-cookie" %}
+      <div class="tcard">
+        <div class="tbar"></div>
+        <div class="tbody">
+          <h3>🍪 {{ item.task.title }}</h3>
+          <p>Share cookies fairly between characters — bigger ones need more!</p>
+          <div class="diff-stars-wrap">
+            <div class="diff-row-label">{{ item.diffs_done }}/3 difficulties done</div>
+            <div class="diff-stars-row">
+              <div class="diff-line">
+                <span class="diff-tag easy">Easy</span>
+                {% for s in "123" %}{% if forloop.counter <= item.easy_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+              <div class="diff-line">
+                <span class="diff-tag medium">Medium</span>
+                {% for s in "123" %}{% if forloop.counter <= item.medium_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+              <div class="diff-line">
+                <span class="diff-tag hard">Hard</span>
+                {% for s in "123456" %}{% if forloop.counter <= item.hard_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tfoot">
+          {% if item.diffs_done == 3 %}<span class="bdone">✅ All done</span>{% elif item.diffs_done > 0 %}<span class="bdone">🔥 {{ item.diffs_done }}/3</span>{% else %}<span class="btodo">⏳ To do</span>{% endif %}
+          <a href="{% url 'core:task_detail' item.task.slug %}" class="btn sm red">Play ▶</a>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if item.task.slug == "task-14-pizza" %}
+      <div class="tcard">
+        <div class="tbar"></div>
+        <div class="tbody">
+          <h3>🍕 {{ item.task.title }}</h3>
+          <p>Cut the pizza and share slices fairly — then answer the division question!</p>
+          <div class="diff-stars-wrap">
+            <div class="diff-row-label">{{ item.diffs_done }}/3 difficulties done</div>
+            <div class="diff-stars-row">
+              <div class="diff-line">
+                <span class="diff-tag easy">Easy</span>
+                {% for s in "123" %}{% if forloop.counter <= item.easy_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+              <div class="diff-line">
+                <span class="diff-tag medium">Medium</span>
+                {% for s in "123" %}{% if forloop.counter <= item.medium_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+              <div class="diff-line">
+                <span class="diff-tag hard">Hard</span>
+                {% for s in "123456" %}{% if forloop.counter <= item.hard_stars %}<span class="diff-star star-on">★</span>{% else %}<span class="diff-star star-off">★</span>{% endif %}{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tfoot">
+          {% if item.diffs_done == 3 %}<span class="bdone">✅ All done</span>{% elif item.diffs_done > 0 %}<span class="bdone">🔥 {{ item.diffs_done }}/3</span>{% else %}<span class="btodo">⏳ To do</span>{% endif %}
+          <a href="{% url 'core:task_detail' item.task.slug %}" class="btn sm red">Play ▶</a>
+        </div>
+      </div>
+      {% endif %}
+
+    {% endfor %}
+
+    <div class="tcard" style="cursor:default">
+      <div class="tbar grey"></div>
+      <div class="tbody">
+        <h3 style="color:#aaa">🔒 More coming soon</h3>
+        <p style="color:#bbb">More tasks will appear in the full build.</p>
+      </div>
+      <div class="tfoot">
+        <span class="btodo" style="border-color:#ddd;color:#bbb;box-shadow:none">🔒 Locked</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROGRESS CHECKER MODAL ── -->
+<div class="modal-bg" id="progressModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>📊 Your Progress</h2>
+    <table class="prog-table">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Easy</th>
+          <th>Medium</th>
+          <th>Hard</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          {% if item.task.slug == "task-10-ribbon" or item.task.slug == "task-12-cookie" or item.task.slug == "task-14-pizza" %}
+          <tr>
+            <td class="task-name-cell">
+              {% if item.task.slug == "task-10-ribbon" %}🎀{% elif item.task.slug == "task-12-cookie" %}🍪{% else %}🍕{% endif %}
+              {{ item.task.title }}
+            </td>
+            <!-- Easy -->
+            <td class="{% if item.easy_stars > 0 %}cell-done{% else %}cell-todo{% endif %}">
+              {% if item.easy_stars > 0 %}
+                ✅ <span class="cell-stars">{% for s in "123" %}{% if forloop.counter <= item.easy_stars %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {% else %}
+                ✗ Not done
+              {% endif %}
+            </td>
+            <!-- Medium -->
+            <td class="{% if item.medium_stars > 0 %}cell-done{% else %}cell-todo{% endif %}">
+              {% if item.medium_stars > 0 %}
+                ✅ <span class="cell-stars">{% for s in "123" %}{% if forloop.counter <= item.medium_stars %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {% else %}
+                ✗ Not done
+              {% endif %}
+            </td>
+            <!-- Hard -->
+            <td class="{% if item.hard_stars > 0 %}cell-done{% else %}cell-todo{% endif %}">
+              {% if item.hard_stars > 0 %}
+                ✅ <span class="cell-stars">{% for s in "123456" %}{% if forloop.counter <= item.hard_stars %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {% else %}
+                ✗ Not done
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="font-size:.75rem;color:#888;margin-top:.9rem;text-align:center">
+      {{ completed_count }} / {{ total }} difficulties completed &nbsp;·&nbsp; {{ percent }}% overall
+    </p>
+  </div>
+</div>
+
+<script>
+function openModal()  { document.getElementById('progressModal').classList.add('open'); }
+function closeModal() { document.getElementById('progressModal').classList.remove('open'); }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+</script>
+{% endblock %}

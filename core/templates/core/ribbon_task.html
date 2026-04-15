@@ -1,0 +1,1573 @@
+{% extends "core/base.html" %}
+{% block title %}Ribbon and Bows – Maths Mayhem{% endblock %}
+
+{% block extra_styles %}
+/* reset - removes default browser spacing */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f5f0e8; color: #222; }
+
+    /* header bar */
+    .header {
+      background: #b94040;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 20px; }
+    .header .lives { font-size: 16px; font-weight: bold; }
+
+    /* difficulty buttons */
+    .diff-bar {
+      background: #e8e0d0;
+      border-bottom: 1px solid #ccc;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .diff-bar label { font-size: 14px; font-weight: bold; }
+    .diff-btn {
+      padding: 5px 16px;
+      border: 2px solid #999;
+      background: white;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .diff-btn.active-easy   { background: #3a9e5f; color: white; border-color: #3a9e5f; }
+    .diff-btn.active-medium { background: #e07820; color: white; border-color: #e07820; }
+    .diff-btn.active-hard   { background: #b94040; color: white; border-color: #b94040; }
+
+    /* coloured notice bar below difficulty */
+    .notice-bar {
+      padding: 7px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      background: #eafaf1;
+      color: #1a5c35;
+      border-left: 5px solid #3a9e5f;
+    }
+
+    /* two-column layout */
+    .main { display: flex; min-height: calc(100vh - 100px); }
+    .task-area {
+      flex: 1;
+      padding: 18px 20px;
+      border-right: 2px solid #ccc;
+      overflow-y: auto;
+    }
+
+    /* right panel */
+    .answer-panel {
+      width: 240px;
+      flex-shrink: 0;
+      padding: 18px 16px;
+      background: #fdf8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .answer-panel-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+    .answer-box {
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      min-height: 80px;
+    }
+    .answer-box .big-num {
+      font-size: 40px;
+      font-weight: bold;
+      color: #b94040;
+      display: block;
+      text-align: center;
+    }
+    .check-btn {
+      width: 100%;
+      padding: 10px;
+      background: #b94040;
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      display: none;
+    }
+    .check-btn:hover { background: #933232; }
+    .check-btn.show { display: block; }
+    .answer-feedback {
+      font-size: 13px;
+      font-weight: bold;
+      padding: 8px 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .answer-feedback.ok  { display: block; background: #d5f5e3; color: #1a5c35; border: 1px solid #27ae60; }
+    .answer-feedback.bad { display: block; background: #fadbd8; color: #7b241c; border: 1px solid #c0392b; }
+
+    /* rosie speech bubble */
+    .rosie-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .rosie-img { font-size: 36px; flex-shrink: 0; }
+    .speech {
+      flex: 1;
+      background: white;
+      border: 2px solid #999;
+      border-radius: 4px 12px 12px 12px;
+      padding: 9px 13px;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.5;
+      position: relative;
+    }
+    /* little tail on speech bubble */
+    .speech::before {
+      content: '';
+      position: absolute;
+      bottom: -9px; left: 12px;
+      border: 5px solid transparent;
+      border-top-color: #999;
+    }
+    .speech::after {
+      content: '';
+      position: absolute;
+      bottom: -6px; left: 14px;
+      border: 3px solid transparent;
+      border-top-color: white;
+    }
+
+    /* bow strip in the tray (draggable piece) */
+    .bow-strip {
+      height: 44px;
+      background: #b94040;
+      border: 2px solid #333;
+      cursor: grab;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .bow-strip:active { cursor: grabbing; }
+    .bow-strip.selected { outline: 3px solid #333; outline-offset: 2px; }
+
+    /* the grey drop ribbon */
+    .full-ribbon {
+      height: 52px;
+      background: #888;
+      border: 2px solid #333;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      width: 100%;
+    }
+    .full-ribbon.drag-over { background: #aaa; }
+
+    /* fill bar inside ribbon - red segments snap in from left */
+    .ribbon-fill-area {
+      position: absolute;
+      left: 0; top: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: stretch;
+      pointer-events: none;
+      width: 100%;
+    }
+    .ribbon-segment {
+      height: 100%;
+      background: #b94040;
+      border-right: 2px dashed rgba(255,255,255,0.5);
+      flex-shrink: 0;
+    }
+    .ribbon-segment:last-child { border-right: none; }
+
+    /* emoji row below ribbon */
+    .bow-count-row {
+      display: flex;
+      flex-wrap: nowrap;
+      margin-top: 5px;
+      min-height: 28px;
+      width: 100%;
+    }
+
+    /* ribbon label row */
+    .ribbon-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    /* bow strip label */
+    .bow-strip-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+    .bow-strip-row span { font-size: 13px; font-weight: bold; color: #333; }
+    .bow-cm { font-size: 13px; font-weight: bold; color: #b94040; }
+
+    /* equation text (medium) */
+    .eq-display { font-size: 13px; font-weight: bold; color: #555; margin: 5px 0; min-height: 18px; }
+
+    /* feedback boxes */
+    .feedback {
+      display: none;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 8px;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+    .feedback.ok   { display: block; background: #d5f5e3; border: 1px solid #27ae60; color: #1a5c35; }
+    .feedback.bad  { display: block; background: #fadbd8; border: 1px solid #c0392b; color: #7b241c; }
+    .feedback.hint { display: block; background: #fef9ec; border: 1px solid #e67e22; color: #784212; }
+
+    /* generic buttons */
+    .next-btn {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 18px;
+      background: #444;
+      color: white;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .next-btn:hover { background: #666; }
+    .hint-btn {
+      padding: 6px 12px;
+      background: #fef9ec;
+      color: #784212;
+      border: 1px solid #e67e22;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+    .hint-btn:hover { background: #fdebd0; }
+
+    /* easy - side by side compare */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+    .compare-box { background: #f5f5f5; border: 1px solid #ccc; padding: 10px; border-radius: 4px; }
+    .compare-box-title { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+    .compare-num { font-size: 30px; font-weight: bold; color: #b94040; }
+    .compare-label { font-size: 11px; color: #888; }
+    .compare-bows { font-size: 16px; margin-top: 4px; word-break: break-all; line-height: 1.4; }
+    .options-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .opt-btn {
+      padding: 8px 14px;
+      border: 2px solid #333;
+      background: white;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .opt-btn:hover { background: #f0f0f0; }
+    .opt-btn.correct { background: #d5f5e3; border-color: #27ae60; color: #1a5c35; pointer-events: none; }
+    .opt-btn.wrong   { background: #fadbd8; border-color: #c0392b; color: #7b241c; pointer-events: none; }
+
+    /* hard - base ribbon visual */
+    .hard-base-ribbon {
+      display: flex;
+      height: 44px;
+      border: 2px solid #333;
+      overflow: hidden;
+      margin: 8px 0;
+      max-width: 460px;
+    }
+    .hbr-seg {
+      flex: 1;
+      background: #b94040;
+      border-right: 2px dashed rgba(255,255,255,0.4);
+    }
+    .hbr-seg:last-child { border-right: none; }
+
+    /* hard - table */
+    .bow-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+    .bow-table th { background: #333; color: white; padding: 8px 10px; text-align: left; font-size: 12px; text-transform: uppercase; }
+    .bow-table td { padding: 8px 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+    .bow-table tr:nth-child(even) td { background: #fafafa; }
+    .bow-table tr.row-done td { background: #d5f5e3 !important; }
+    .tbl-input {
+      width: 60px; height: 34px;
+      border: 2px solid #aaa;
+      font-size: 15px; text-align: center; font-weight: bold;
+      border-radius: 3px; outline: none;
+      cursor: default; background: #fafafa;
+    }
+    .revealed { display: none; font-weight: bold; color: #27ae60; font-size: 17px; margin-left: 6px; }
+
+    /* hard - drag section */
+    .hard-drag-section {
+      background: #fafafa;
+      border: 1px solid #ccc;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+    }
+    .hard-drag-title { font-size: 12px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+    .hard-bow-tray { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+    .hard-bow-piece {
+      height: 40px;
+      background: #b94040;
+      border: 2px solid #333;
+      cursor: grab;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      min-width: 8px;
+    }
+    .hard-bow-piece:active { cursor: grabbing; }
+    .hard-drop-ribbon {
+      height: 48px;
+      background: #ccc;
+      border: 2px solid #333;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .hard-fill-bar {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      display: flex;
+      align-items: stretch;
+      pointer-events: none;
+    }
+    .hard-fill-seg {
+      height: 100%;
+      background: #b94040;
+      border-right: 1px solid rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+    .placed-msg { font-size: 13px; font-weight: bold; color: #3a9e5f; margin: 5px 0; min-height: 20px; }
+    .clear-btn {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: bold;
+      border: 1px solid #aaa;
+      background: #f0f0f0;
+      cursor: pointer;
+      border-radius: 3px;
+      margin-top: 4px;
+    }
+    .progress-note { font-size: 12px; font-weight: bold; color: #555; margin: 4px 0 8px; }
+
+    /* rule builder */
+    .rule-box {
+      background: #eef6ff;
+      border: 2px solid #2980b9;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 4px;
+    }
+    .rule-title { font-size: 13px; font-weight: bold; color: #1a4f7a; margin-bottom: 10px; }
+    .rule-sentence { font-size: 15px; font-weight: bold; line-height: 2.8; }
+    .rule-blank {
+      display: inline-block;
+      min-width: 100px;
+      border-bottom: 3px solid #333;
+      cursor: pointer;
+      text-align: center;
+      padding: 2px 8px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #b94040;
+      margin: 0 3px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+    .rule-blank:hover  { background: #fadbd8; border-color: #b94040; }
+    .rule-blank.sel    { background: #fef9ec; border-color: #e67e22; border-style: solid; color: #784212; }
+    .rule-blank.filled { background: #d5f5e3; border-color: #27ae60; border-style: solid; color: #1a5c35; cursor: default; }
+    .word-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .word-btn {
+      padding: 7px 14px;
+      border: 2px solid #333;
+      background: white;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .word-btn:hover { background: #eee; }
+    .word-btn.used { opacity: 0.3; cursor: default; }
+
+    /* end screen */
+    .completion { text-align: center; padding: 40px 20px; }
+    .completion h2 { font-size: 26px; margin-bottom: 8px; }
+    .comp-sub { font-size: 14px; color: #666; margin-bottom: 12px; }
+    .comp-stars { font-size: 28px; letter-spacing: 4px; margin: 8px 0; }
+    .play-again {
+      padding: 11px 24px;
+      background: #e07820;
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+    .play-again:hover { background: #c0621a; }
+
+    /* toast notification */
+    .toast {
+      position: fixed;
+      bottom: 14px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #333; color: white;
+      padding: 7px 16px;
+      font-size: 13px; font-weight: bold;
+      z-index: 9999;
+      transition: transform 0.3s;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* emoji pop animation */
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+{% endblock %}
+
+{% block content %}
+<!-- header -->
+<div class="header">
+  <h1>Ribbon and Bows</h1>
+  <div class="lives">Lives: <span id="livesEl">3</span></div>
+</div>
+
+<!-- difficulty buttons -->
+<div class="diff-bar">
+  <label>Difficulty:</label>
+  <button class="diff-btn active-easy" data-d="easy">Easy</button>
+  <button class="diff-btn" data-d="medium">Medium</button>
+  <button class="diff-btn" data-d="hard">Hard</button>
+</div>
+
+<!-- notice bar - changes colour per difficulty -->
+<div class="notice-bar" id="noticeBar">Easy - Just have fun placing bows on the ribbon and see what you discover!</div>
+
+<!-- two column layout -->
+<div class="main">
+
+  <!-- left: task -->
+  <div class="task-area" id="taskArea"></div>
+
+  <!-- right: answer panel -->
+  <div class="answer-panel" id="answerPanel">
+    <div class="answer-panel-title">How many bows can you create?</div>
+    <div class="answer-box" id="answerBox">
+      <span style="color:#aaa;font-size:13px">Place bows on the ribbon to find out!</span>
+    </div>
+    <!-- input shown once ribbon is full -->
+    <div id="answerInputWrap" style="display:none">
+      <div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:6px">Type your answer:</div>
+      <input id="answerInput" type="number" min="0" max="200"
+        style="width:100%;height:48px;border:2px solid #333;font-size:22px;text-align:center;font-weight:bold;outline:none;border-radius:4px;"
+        placeholder="?"
+        onkeydown="if(event.key==='Enter') checkAnswerInput()"/>
+    </div>
+    <button class="check-btn" id="checkBtn" onclick="checkAnswerInput()">Check the answer</button>
+    <div class="answer-feedback" id="answerFeedback"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SAVE_URL = "{% url 'core:save_progress' task.slug %}";
+var CSRF_TOKEN = "{{ csrf_token }}";
+var OWNED_THEMES = {{ owned_themes|safe }};
+
+// Ribbon colour from shop pack
+var RIBBON_COLOURS = {
+  colour_red:     { fill:'#c0392b', border:'#922b21' },
+  colour_blue:    { fill:'#2980b9', border:'#1a5276' },
+  colour_rainbow: { fill:'linear-gradient(90deg,#e74c3c,#f39c12,#2ecc71,#3498db,#9b59b6)', border:'#999', isGradient:true },
+  colour_glitter: { fill:'#f5a623', border:'#c47d10' },
+};
+var activeRibbonColour = null;
+(function(){
+  var keys=['colour_red','colour_blue','colour_rainbow','colour_glitter'];
+  for(var i=0;i<keys.length;i++){
+    if(OWNED_THEMES.indexOf(keys[i])>=0){ activeRibbonColour=keys[i]; break; }
+  }
+})();
+
+// Apply ribbon colour to bow-strip and hard-bow-piece via CSS
+(function(){
+  if(!activeRibbonColour) return;
+  var col = RIBBON_COLOURS[activeRibbonColour];
+  var style = document.createElement('style');
+  if(col.isGradient){
+    style.textContent = '.bow-strip,.hard-bow-piece,.ribbon-segment,.hard-fill-seg{background:'+col.fill+' !important; border-color:'+col.border+' !important}';
+  } else {
+    style.textContent = '.bow-strip,.hard-bow-piece,.ribbon-segment,.hard-fill-seg{background:'+col.fill+' !important; border-color:'+col.border+' !important}';
+  }
+  document.head.appendChild(style);
+})();
+
+function saveToServer(completed, pts, stars, difficulty) {
+  fetch(SAVE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+    body: JSON.stringify({
+      completed: completed,
+      score: pts || 0,
+      max_score: 100,
+      stars: stars || Math.max(1, lives),
+      difficulty: difficulty || diff
+    })
+  }).catch(function(){});
+}
+
+// global state
+var diff = 'easy';
+var lives = 3;
+var ri = 0; // round index
+var score = 0;
+var selectedBow = null;
+
+// hard mode state
+var hFilled = 0, hBowPx = 0, hPlaced = 0;
+
+// easy/medium ribbon state (mirrors hard)
+var sFilled = 0, sBowPx = 0, sPlaced = 0, sSlots = 0, sOnFull = null, sOnEach = null;
+var hDone = {}, hCorrect = 0;
+var ruleAnswers = {}, activeBlank = null;
+var DROP_LIMIT = 60;
+
+// medium state
+var medPlaced = 0;
+
+
+/* =====================
+   DIFFICULTY BUTTONS
+   ===================== */
+document.querySelectorAll('.diff-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    diff = this.dataset.d;
+
+    // update active button style
+    document.querySelectorAll('.diff-btn').forEach(function(b) { b.className = 'diff-btn'; });
+    this.classList.add('active-' + diff);
+
+    // update notice bar text and colour
+    var notices = {
+      easy:   'Easy - Just have fun placing bows on the ribbon and see what you discover!',
+      medium: 'Medium - Place the bows, watch the equation build up, then check the answer!',
+      hard:   'Hard - Fill the ribbon to count how many bows fit, then complete the table!'
+    };
+    var colors = {
+      easy:   { bg:'#eafaf1', color:'#1a5c35', border:'#3a9e5f' },
+      medium: { bg:'#fef9ec', color:'#784212', border:'#e07820' },
+      hard:   { bg:'#fde8e8', color:'#7b241c', border:'#b94040' }
+    };
+    var nb = document.getElementById('noticeBar');
+    nb.textContent = notices[diff];
+    nb.style.backgroundColor = colors[diff].bg;
+    nb.style.color = colors[diff].color;
+    nb.style.borderLeftColor = colors[diff].border;
+
+    startGame();
+  });
+});
+
+
+/* =====================
+   EASY MODE
+   ===================== */
+
+var easyRounds = [
+  {
+    id: 'e1',
+    normalBow: { slots: 4, fraction: 0.25 },
+    bigBow:    { slots: 2, fraction: 0.5 },
+    msg1: "Hi! I am Rosie. Drag the bow piece onto the grey ribbon to fill it up!",
+    msg2: "You fitted {n} bows! Now try a BIGGER bow — how many will fit?",
+    msg3: "Only {n} bows this time!",
+    obsQ: "What do you notice? When the bow is BIGGER...",
+    opts: ['More bows fit', 'Fewer bows fit', 'The same number fits'],
+    correct: 1,
+    msgOk:  "Yes! A bigger bow takes up more room so fewer fit.",
+    msgBad: "The bigger bow takes up more space — so does more or less fit?"
+  },
+  {
+    id: 'e2',
+    normalBow: { slots: 6, fraction: 1/6 },
+    bigBow:    { slots: 12, fraction: 1/12 },
+    msg1: "This ribbon is longer. Fill it up with normal bows first!",
+    msg2: "Brilliant — {n} bows! Now these bows are really tiny. How many fit?",
+    msg3: "Wow — {n} tiny bows!",
+    obsQ: "When the bow is SMALLER...",
+    opts: ['Fewer bows fit', 'More bows fit', 'The same number fits'],
+    correct: 1,
+    msgOk:  "Exactly! A smaller bow takes less room so more fit.",
+    msgBad: "The tiny bows are much smaller — so what happens to the number?"
+  }
+];
+
+var easyNormalCount = 0, easyBigCount = 0, wrongCount = 0;
+
+function renderEasy() {
+  var r = easyRounds[ri];
+  easyNormalCount = 0; easyBigCount = 0; wrongCount = 0;
+  setRosie(r.msg1);
+  resetAnswerPanel('Place bows on the ribbon to find out!');
+
+  var RIBBON_PX = 440;
+  var bowPx = Math.round(RIBBON_PX / r.normalBow.slots);
+
+  setTask(
+    '<div class="hard-drag-section" id="simpleDragSection"></div>' +
+    '<div class="feedback" id="fb"></div>' +
+    hintBtn("Click the ribbon to place a bow, or drag the bow piece onto it!") +
+    '<button class="next-btn" id="nb" onclick="easyPhase2()">Now try a bigger bow!</button>'
+  );
+
+  buildSimpleRibbon(RIBBON_PX, bowPx, r.normalBow.slots, '🎀',
+    'For this bow', 'you need so much ribbon',
+    function(n) {
+      easyNormalCount = n;
+      setRosie(r.msg2.replace('{n}', n));
+      showAnswerInput(n, null, null, null, false);
+    }
+  );
+}
+
+function easyPhase2() {
+  var r = easyRounds[ri];
+  setRosie(r.msg3.replace('{n}', '?'));
+  resetAnswerPanel('Place the bigger bow to find out!');
+
+  var RIBBON_PX = 440;
+  var bowPx = Math.round(RIBBON_PX / r.bigBow.slots);
+
+  setTask(
+    '<div class="hard-drag-section" id="simpleDragSection"></div>' +
+    '<div class="feedback" id="fb"></div>' +
+    hintBtn("Click the ribbon to place a bow, or drag the bow piece onto it!") +
+    '<button class="next-btn" id="nb" onclick="easyObserve()">What did you notice?</button>'
+  );
+
+  buildSimpleRibbon(RIBBON_PX, bowPx, r.bigBow.slots, '🎀',
+    'For this bow', 'you need so much ribbon',
+    function(n) {
+      easyBigCount = n;
+      setRosie(r.msg3.replace('{n}', n));
+      showAnswerInput(n, null, null, null, false);
+    }
+  );
+}
+
+function easyObserve() {
+  var r = easyRounds[ri];
+  wrongCount = 0;
+  setRosie(r.obsQ);
+  resetAnswerPanel(null);
+
+  setTask(
+    '<p style="font-size:14px;font-weight:bold;margin-bottom:10px">Compare your two ribbons:</p>' +
+    '<div class="compare-grid">' +
+      '<div class="compare-box">' +
+        '<div class="compare-box-title">Normal bow</div>' +
+        '<div class="compare-num">' + easyNormalCount + '</div>' +
+        '<div class="compare-label">bows fitted</div>' +
+        '<div class="compare-bows">' + '🎀'.repeat(Math.min(easyNormalCount, 20)) + '</div>' +
+      '</div>' +
+      '<div class="compare-box">' +
+        '<div class="compare-box-title">Different bow</div>' +
+        '<div class="compare-num">' + easyBigCount + '</div>' +
+        '<div class="compare-label">bows fitted</div>' +
+        '<div class="compare-bows">' + '🎀'.repeat(Math.min(easyBigCount, 20)) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<p style="font-size:14px;font-weight:bold;margin:10px 0 6px">' + r.obsQ + '</p>' +
+    '<div class="options-row" id="opts">' +
+      r.opts.map(function(o, i) {
+        return '<button class="opt-btn" data-i="' + i + '">' + o + '</button>';
+      }).join('') +
+    '</div>' +
+    '<div class="feedback" id="fb"></div>' +
+    '<button class="next-btn" id="nb" onclick="nextEasyRound()">Next!</button>'
+  );
+
+  // check which option was clicked
+  document.querySelectorAll('#opts .opt-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var i = parseInt(this.dataset.i);
+      // lock all buttons while checking
+      document.querySelectorAll('#opts .opt-btn').forEach(function(b) {
+        b.style.pointerEvents = 'none';
+        b.style.opacity = '0.6';
+      });
+      if (i === r.correct) {
+        this.classList.add('correct');
+        this.style.opacity = '1';
+        setFB('fb', 'ok', r.msgOk);
+        document.getElementById('nb').style.display = 'block';
+      } else {
+        wrongCount++;
+        this.classList.add('wrong');
+        this.style.opacity = '1';
+        lives = Math.max(0, lives - 1);
+        document.getElementById('livesEl').textContent = lives;
+        setFB('fb', 'bad', r.msgBad);
+        // re-enable after a moment
+        setTimeout(function() {
+          document.querySelectorAll('#opts .opt-btn').forEach(function(b) {
+            b.classList.remove('wrong');
+            b.style.pointerEvents = '';
+            b.style.opacity = '1';
+          });
+        }, 900);
+      }
+    });
+  });
+}
+
+function nextEasyRound() {
+  ri++;
+  if (ri >= easyRounds.length) { endGame(); return; }
+  renderEasy();
+}
+
+
+/* =====================
+   MEDIUM MODE
+   ===================== */
+
+var medRounds = [
+  { cm: 120, bowCm: 30, fraction: '1/4', slots: 4,
+    msg: "You have a 120cm ribbon! Each bow needs 30cm. Drag the bow piece to fill the ribbon!",
+    reveal: "4 x 30 = 120cm. You need 1/4 of the ribbon to create 1 bow. 120 / 30 = 4" },
+  { cm: 80,  bowCm: 20, fraction: '1/4', slots: 4,
+    msg: "You have an 80cm ribbon. Each bow uses 20cm. Fill it up!",
+    reveal: "4 x 20 = 80cm. You need 1/4 of the ribbon for 1 bow. 80 / 20 = 4" },
+  { cm: 150, bowCm: 50, fraction: '1/3', slots: 3,
+    msg: "You have a 150cm ribbon. Each bow needs 50cm. Fill it up!",
+    reveal: "3 x 50 = 150cm. You need 1/3 of the ribbon for 1 bow. 150 / 50 = 3" }
+];
+
+function renderMedium() {
+  var r = medRounds[ri];
+  setRosie(r.msg);
+  resetAnswerPanel('Drag bows onto the ribbon to find out!');
+
+  var RIBBON_PX = 440;
+  var bowPx = Math.round(RIBBON_PX / r.slots);
+
+  setTask(
+    '<div class="hard-drag-section" id="simpleDragSection"></div>' +
+    '<div class="eq-display" id="eqD"></div>' +
+    '<div class="feedback" id="fb"></div>' +
+    hintBtn("Click the ribbon or drag the bow piece onto it!") +
+    '<button class="next-btn" id="nb" onclick="nextMedRound()">Next ribbon!</button>'
+  );
+
+  buildSimpleRibbon(RIBBON_PX, bowPx, r.slots, '🎀',
+    'For this bow',
+    'you need ' + r.bowCm + 'cm',
+    function(n) {
+      // ribbon full — ask child to type the answer
+      showAnswerInput(n, r.bowCm, r.cm, r.fraction, false);
+    },
+    function(n) {
+      // update equation on every placement
+      var eqD = document.getElementById('eqD');
+      if (eqD) eqD.textContent = n + ' bow(s): ' + n + ' x ' + r.bowCm + 'cm = ' + (n * r.bowCm) + 'cm used';
+    }
+  );
+}
+
+// doMedPlace replaced by buildSimpleRibbon
+
+function nextMedRound() {
+  ri++;
+  if (ri >= medRounds.length) { endGame(); return; }
+  renderMedium();
+}
+
+/* =====================
+   SIMPLE RIBBON (used by easy + medium)
+   Mirrors hard mode exactly — fixed px widths
+   onFull(n)   = called when ribbon fills up
+   onEach(n)   = optional, called on every placement
+   ===================== */
+function buildSimpleRibbon(RIBBON_PX, bowPx, slots, emoji, labelLeft, labelRight, onFull, onEach) {
+  sFilled = 0;
+  sBowPx  = Math.max(4, bowPx);
+  sPlaced = 0;
+  sSlots  = slots;
+  sOnFull = onFull;
+  sOnEach = onEach || null;
+
+  var section = document.getElementById('simpleDragSection');
+  if (!section) return;
+
+  section.innerHTML =
+    '<div class="hard-drag-title">' + labelLeft + ' — drag or click onto the ribbon</div>' +
+    '<div class="hard-bow-tray">' +
+      '<span style="font-size:12px;font-weight:bold;color:#555">' + labelLeft + ':</span>' +
+      '<div class="hard-bow-piece" id="sBowDrag" draggable="true" style="width:' + Math.round(Math.min(bowPx, 160)) + 'px"></div>' +
+      '<span style="font-size:12px;color:#888">' + labelRight + '</span>' +
+    '</div>' +
+    '<div class="ribbon-label-row"><span>The ribbon:</span></div>' +
+    '<div class="hard-drop-ribbon" id="sDropRib" style="width:' + RIBBON_PX + 'px"' +
+      ' ondragover="event.preventDefault()"' +
+      ' ondrop="placeSimpleBow()"' +
+      ' onclick="placeSimpleBow()">' +
+      '<div class="hard-fill-bar" id="sFillBar"></div>' +
+    '</div>' +
+    '<div class="bow-count-row" id="sCount"></div>' +
+    '<div class="placed-msg" id="sPlacedMsg">Click or drag the bow piece onto the ribbon</div>' +
+    '<button class="clear-btn" onclick="clearSimpleRibbon()">Clear</button>';
+
+  var bd = document.getElementById('sBowDrag');
+  if (bd) bd.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text','bow'); });
+}
+
+function placeSimpleBow() {
+  if (sPlaced >= sSlots) return;
+  sPlaced++;
+  sFilled += sBowPx;
+
+  var bar = document.getElementById('sFillBar');
+  if (bar) {
+    var seg = document.createElement('div');
+    seg.className = 'hard-fill-seg';
+    seg.style.width = Math.round(sBowPx) + 'px';
+    seg.style.background = sPlaced % 2 === 0 ? '#933232' : '#b94040';
+    bar.appendChild(seg);
+    addEmojiBelow('sCount', '🎀', Math.max(10, Math.round(sBowPx)));
+  }
+
+  if (sOnEach) sOnEach(sPlaced);
+
+  var msg = document.getElementById('sPlacedMsg');
+  if (sPlaced >= sSlots) {
+    if (msg) msg.textContent = sPlaced + ' bows fit! Type your answer on the right.';
+    if (sOnFull) sOnFull(sPlaced);
+  } else {
+    if (msg) msg.textContent = sPlaced + ' placed so far — keep going!';
+  }
+}
+
+function clearSimpleRibbon() {
+  sPlaced = 0; sFilled = 0;
+  var bar = document.getElementById('sFillBar');
+  if (bar) bar.innerHTML = '';
+  var cnt = document.getElementById('sCount');
+  if (cnt) cnt.innerHTML = '';
+  var msg = document.getElementById('sPlacedMsg');
+  if (msg) msg.textContent = 'Click or drag the bow piece onto the ribbon';
+  var eqD = document.getElementById('eqD');
+  if (eqD) eqD.textContent = '';
+  resetAnswerPanel('Fill the ribbon to find out!');
+}
+
+
+/* =====================
+   HARD MODE
+   ===================== */
+
+var hardRounds = [
+  { base: 4, bow: '🎀', intro: "This ribbon fits exactly 4 normal bows. Fill the ribbon for each row to count how many bows fit, then type it in!",
+    rows: [
+      { label: '1/2 of normal size',  fraction: 'x 1/2',  answer: 8,  mult: 0.5   },
+      { label: '1/3 of normal size',  fraction: 'x 1/3',  answer: 12, mult: 1/3   },
+      { label: '1/4 of normal size',  fraction: 'x 1/4',  answer: 16, mult: 0.25  },
+      { label: '1/10 of normal size', fraction: 'x 1/10', answer: 40, mult: 0.1   },
+      { label: 'x2 (double)',         fraction: 'x 2',    answer: 2,  mult: 2     },
+      { label: 'x3 (triple)',         fraction: 'x 3',    answer: 1,  mult: 3     },
+      { label: 'x4',                  fraction: 'x 4',    answer: 1,  mult: 4     },
+      { label: 'x10',                 fraction: 'x 10',   answer: 0,  mult: 10    }
+    ]
+  },
+  { base: 6, bow: '🌸', intro: "This ribbon fits exactly 6 normal bows. Fill in every row!",
+    rows: [
+      { label: '1/2 of normal size',  fraction: 'x 1/2',  answer: 12, mult: 0.5   },
+      { label: '1/3 of normal size',  fraction: 'x 1/3',  answer: 18, mult: 1/3   },
+      { label: '1/4 of normal size',  fraction: 'x 1/4',  answer: 24, mult: 0.25  },
+      { label: '1/10 of normal size', fraction: 'x 1/10', answer: 60, mult: 0.1   },
+      { label: 'x2 (double)',         fraction: 'x 2',    answer: 3,  mult: 2     },
+      { label: 'x3 (triple)',         fraction: 'x 3',    answer: 2,  mult: 3     },
+      { label: 'x4',                  fraction: 'x 4',    answer: 2,  mult: 4     },
+      { label: 'x10',                 fraction: 'x 10',   answer: 0,  mult: 10    }
+    ]
+  }
+];
+
+function renderHard() {
+  var r = hardRounds[ri];
+  hDone = {}; hCorrect = 0; ruleAnswers = {}; activeBlank = null;
+  setRosie(r.intro);
+  resetAnswerPanel('Fill the ribbon above to find out!');
+
+  // build base ribbon showing normal bows
+  var baseHTML = '';
+  for (var b = 0; b < r.base; b++) {
+    baseHTML += '<div class="hbr-seg"></div>';
+  }
+
+  // build table rows
+  var rowsHTML = '';
+  r.rows.forEach(function(row, i) {
+    rowsHTML +=
+      '<tr id="htr' + i + '" style="' + (i > 0 ? 'opacity:0.5' : '') + '">' +
+        '<td style="font-weight:bold">' + row.label + '</td>' +
+        '<td style="text-align:center;font-weight:bold;font-size:14px">' + row.fraction + '</td>' +
+        '<td>' +
+          '<input class="tbl-input" id="hti' + i + '" type="number" min="0" max="200" placeholder="?" ' + (i > 0 ? 'disabled' : '') + ' />' +
+          '<span class="revealed" id="hrev' + i + '"></span>' +
+        '</td>' +
+      '</tr>';
+  });
+
+  setTask(
+    '<p style="font-size:12px;font-weight:bold;color:#888;text-transform:uppercase;margin-bottom:4px">Normal ribbon fits ' + r.base + ' bows:</p>' +
+    '<div class="hard-base-ribbon">' + baseHTML + '</div>' +
+    '<div class="hard-drag-section" id="hardDragSection"></div>' +
+    '<p class="progress-note">Rows done: <span id="hdone">0</span> / ' + r.rows.length + '</p>' +
+    '<table class="bow-table">' +
+      '<thead><tr><th>New bow size</th><th>Change</th><th>How many fit?</th></tr></thead>' +
+      '<tbody>' + rowsHTML + '</tbody>' +
+    '</table>' +
+    '<div class="feedback" id="fb"></div>' +
+    hintBtn("Fill the ribbon by clicking it — then count how many bows fit!") +
+    '<button class="next-btn" id="nb" onclick="hardShowRule()">I have finished the table!</button>'
+  );
+
+  buildHardDrag(r, 0);
+  wireHardRow(r, 0);
+}
+
+// builds the draggable ribbon for the current row
+function buildHardDrag(r, idx) {
+  var row = r.rows[idx];
+  var RIBBON_PX = 440;
+  var normalBowPx = RIBBON_PX / r.base;       // width of one normal bow
+  var newBowPx = normalBowPx * row.mult;       // width of new (changed) bow
+  var tooBig = newBowPx >= RIBBON_PX;
+
+  hFilled = 0;
+  hBowPx = Math.max(4, newBowPx);
+  hPlaced = 0;
+
+  var bowDisplayPx = Math.max(6, Math.min(newBowPx, 120));
+
+  var section = document.getElementById('hardDragSection');
+  if (!section) return;
+
+  section.innerHTML =
+    '<div class="hard-drag-title">Fill the ribbon to count how many bows fit</div>' +
+    '<div class="hard-bow-tray">' +
+      '<span style="font-size:12px;font-weight:bold;color:#555">New bow (' + row.fraction + '):</span>' +
+      '<div class="hard-bow-piece" id="hBowDrag" draggable="true" style="width:' + Math.round(bowDisplayPx) + 'px"></div>' +
+      '<span style="font-size:12px;color:#888">' + (tooBig ? '(bigger than the ribbon!)' : 'Click the ribbon to place it') + '</span>' +
+    '</div>' +
+    '<div class="ribbon-label-row"><span>Fill the ribbon:</span></div>' +
+    '<div class="hard-drop-ribbon" id="hDropRib" style="width:' + RIBBON_PX + 'px"' +
+      ' ondragover="event.preventDefault()"' +
+      ' ondrop="placeHardBow()"' +
+      ' onclick="placeHardBow()">' +
+      '<div class="hard-fill-bar" id="hFillBar"></div>' +
+      (tooBig ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;font-weight:bold">Too big to fit!</div>' : '') +
+    '</div>' +
+    '<div class="bow-count-row" id="hCount"></div>' +
+    '<div class="placed-msg" id="hPlacedMsg">' + (tooBig ? '0 bows fit — the bow is too big!' : 'Click or drag the bow onto the ribbon') + '</div>' +
+    '<button class="clear-btn" onclick="clearHardRibbon(' + r.base + ',' + row.mult + ')">Clear</button>';
+
+  // wire dragstart
+  var bd = document.getElementById('hBowDrag');
+  if (bd) bd.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text', 'bow'); });
+
+  // if bow is too big, auto-show the answer input with 0
+  if (tooBig) {
+    setTimeout(function() { showAnswerInput(0, null, null, null, true); }, 300);
+  }
+}
+
+function placeHardBow() {
+  var RIBBON_PX = 440;
+  var r = hardRounds[ri];
+
+  // if bow is too big just show 0
+  if (hBowPx >= RIBBON_PX && hPlaced === 0) {
+    showAnswerInput(0, null, null, null, true);
+    return;
+  }
+  if (hFilled + hBowPx > RIBBON_PX + 0.5) return; // ribbon is full
+  if (hPlaced >= DROP_LIMIT) return;
+
+  hPlaced++;
+  hFilled += hBowPx;
+
+  // add red segment to ribbon
+  var bar = document.getElementById('hFillBar');
+  if (bar) {
+    var seg = document.createElement('div');
+    seg.className = 'hard-fill-seg';
+    seg.style.width = Math.round(hBowPx) + 'px';
+    seg.style.background = hPlaced % 2 === 0 ? '#933232' : '#b94040';
+    bar.appendChild(seg);
+    // add emoji below
+    addEmojiBelow('hCount', r.bow, Math.max(10, Math.round(hBowPx)));
+  }
+
+  var msg = document.getElementById('hPlacedMsg');
+  var remaining = RIBBON_PX - hFilled;
+
+  if (remaining < hBowPx - 0.5 || hPlaced >= DROP_LIMIT) {
+    // ribbon is full — ask for the answer
+    if (msg) msg.textContent = hPlaced + ' bows fit! Type your answer on the right.';
+    showAnswerInput(hPlaced, null, null, null, true);
+  } else {
+    if (msg) msg.textContent = hPlaced + ' placed so far — keep going!';
+  }
+}
+
+function clearHardRibbon(base, mult) {
+  hFilled = 0; hPlaced = 0;
+  hBowPx = Math.max(4, (440 / base) * mult);
+  var bar = document.getElementById('hFillBar');
+  if (bar) bar.innerHTML = '';
+  var hc = document.getElementById('hCount');
+  if (hc) hc.innerHTML = '';
+  var msg = document.getElementById('hPlacedMsg');
+  if (msg) msg.textContent = 'Click or drag the bow onto the ribbon';
+  resetAnswerPanel('Fill the ribbon to find out!');
+}
+
+// called when checkAnswerInput confirms a correct hard answer
+function hardRowCorrect(correct) {
+  var r = hardRounds[ri];
+  // find the first incomplete row
+  var idx = -1;
+  for (var i = 0; i < r.rows.length; i++) {
+    if (!hDone[i]) { idx = i; break; }
+  }
+  if (idx === -1) return;
+
+  hDone[idx] = true;
+  hCorrect++;
+
+  // mark row green in table
+  var inp = document.getElementById('hti' + idx);
+  if (inp) inp.style.display = 'none';
+  var rev = document.getElementById('hrev' + idx);
+  if (rev) { rev.textContent = correct === 0 ? '0 (none fit!)' : correct; rev.style.display = 'inline'; }
+  var tr = document.getElementById('htr' + idx);
+  if (tr) { tr.classList.add('row-done'); tr.style.opacity = '1'; }
+  document.getElementById('hdone').textContent = hCorrect;
+
+  toast('Correct!');
+  var msgs = ['Yes! Keep going!', 'Good work!', 'Can you see the pattern forming?', 'Nearly there!', 'Just a few more!', 'Last one!'];
+  setRosie(msgs[Math.min(hCorrect - 1, msgs.length - 1)]);
+
+  var nextInp = document.getElementById('hti' + (idx + 1));
+  if (nextInp) {
+    // unlock next row
+    nextInp.disabled = false;
+    var ntr = document.getElementById('htr' + (idx + 1));
+    if (ntr) ntr.style.opacity = '1';
+    buildHardDrag(r, idx + 1);
+    wireHardRow(r, idx + 1);
+  } else {
+    // all rows done
+    setFB('fb', 'ok', 'Amazing! You filled the whole table! Now work out the rule.');
+    setRosie('You found the pattern! Tell me the rule below.');
+    document.getElementById('nb').style.display = 'block';
+    document.getElementById('hardDragSection').style.display = 'none';
+    resetAnswerPanel(null);
+    document.getElementById('answerBox').innerHTML =
+      '<div style="font-size:13px;color:#3a9e5f;font-weight:bold">Table complete! Work out the rule below.</div>';
+  }
+}
+
+function wireHardRow(r, idx) {
+  // just make sure the row is visible — answer is typed in the right panel
+  var tr = document.getElementById('htr' + idx);
+  if (tr) tr.style.opacity = '1';
+}
+
+
+/* =====================
+   RULE BUILDER (hard end)
+   ===================== */
+
+function hardShowRule() {
+  ruleAnswers = {}; activeBlank = null;
+  document.getElementById('hardDragSection').style.display = 'none';
+  setRosie("Click on a blank then click the word that fits!");
+
+  var d = document.createElement('div');
+  d.innerHTML =
+    '<div class="rule-box">' +
+      '<div class="rule-title">Complete the rule — click a blank then pick a word:</div>' +
+      '<div class="rule-sentence">' +
+        'When the bow gets <span class="rule-blank" id="rb1" onclick="selBlank(\'rb1\')">_____</span>, ' +
+        'the number of bows <span class="rule-blank" id="rb2" onclick="selBlank(\'rb2\')">_____</span>.' +
+      '</div>' +
+      '<p style="font-size:12px;color:#888;margin-top:4px;font-style:italic">Hint: think about what happens when the bow gets BIGGER</p>' +
+      '<div class="word-row" id="wordRow">' +
+        '<button class="word-btn" data-w="SMALLER"       onclick="placeWord(this)">SMALLER</button>' +
+        '<button class="word-btn" data-w="BIGGER"        onclick="placeWord(this)">BIGGER</button>' +
+        '<button class="word-btn" data-w="INCREASES"     onclick="placeWord(this)">INCREASES</button>' +
+        '<button class="word-btn" data-w="DECREASES"     onclick="placeWord(this)">DECREASES</button>' +
+        '<button class="word-btn" data-w="STAYS THE SAME" onclick="placeWord(this)">STAYS THE SAME</button>' +
+      '</div>' +
+      '<div class="feedback" id="rule-fb"></div>' +
+      '<button class="next-btn" id="rule-nb" onclick="checkRule()">Check my rule!</button>' +
+    '</div>';
+
+  document.getElementById('taskArea').appendChild(d);
+  document.getElementById('nb').style.display = 'none';
+  setTimeout(function() { selBlank('rb1'); }, 200);
+}
+
+function selBlank(id) {
+  activeBlank = id;
+  document.querySelectorAll('.rule-blank').forEach(function(b) { b.classList.remove('sel'); });
+  var el = document.getElementById(id);
+  if (el && !el.classList.contains('filled')) el.classList.add('sel');
+  setRosie("Now click the word that fits!");
+}
+
+function placeWord(btn) {
+  if (!activeBlank) return;
+  var el = document.getElementById(activeBlank);
+  if (!el || el.classList.contains('filled')) return;
+  el.textContent = btn.dataset.w;
+  el.classList.remove('sel');
+  el.classList.add('filled');
+  ruleAnswers[activeBlank] = btn.dataset.w;
+  btn.classList.add('used');
+  activeBlank = null;
+  // auto-select next blank if any
+  ['rb1', 'rb2'].forEach(function(id) {
+    var b = document.getElementById(id);
+    if (b && !b.classList.contains('filled')) { selBlank(id); }
+  });
+  if (ruleAnswers['rb1'] && ruleAnswers['rb2']) {
+    document.getElementById('rule-nb').style.display = 'block';
+  }
+}
+
+function checkRule() {
+  var ok1 = ruleAnswers['rb1'] === 'BIGGER';
+  var ok2 = ruleAnswers['rb2'] === 'DECREASES';
+  var fb = document.getElementById('rule-fb');
+  if (ok1 && ok2) {
+    fb.className = 'feedback ok';
+    fb.textContent = 'Perfect! When the bow gets BIGGER, fewer fit — the number DECREASES. And the opposite: smaller bow means more bows!';
+    setRosie("You discovered the rule yourself!");
+    document.getElementById('rule-nb').style.display = 'none';
+    setTimeout(function() {
+      ri++;
+      if (ri >= hardRounds.length) endGame(); else renderHard();
+    }, 2500);
+  } else {
+    var msgs = [];
+    if (!ok1) msgs.push("Look at the x2, x3 rows — when the bow got bigger, what happened?");
+    if (!ok2) msgs.push("When the bow gets bigger, does the number go up or down?");
+    fb.className = 'feedback bad';
+    fb.textContent = msgs.join(' ');
+    setRosie(msgs[0]);
+    lives = Math.max(0, lives - 1);
+    document.getElementById('livesEl').textContent = lives;
+    // reset blanks
+    ['rb1', 'rb2'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = '_____'; el.classList.remove('filled', 'sel'); }
+    });
+    document.querySelectorAll('.word-btn').forEach(function(b) { b.classList.remove('used'); });
+    ruleAnswers = {};
+    document.getElementById('rule-nb').style.display = 'none';
+    setTimeout(function() { selBlank('rb1'); }, 400);
+  }
+}
+
+
+/* =====================
+   ANSWER INPUT (right panel)
+   ===================== */
+
+// shows the typed input in the right panel once the ribbon is full
+function showAnswerInput(count, bowCm, totalCm, fraction, isHard) {
+  document.getElementById('answerBox').innerHTML =
+    '<div style="font-size:13px;color:#555;margin-bottom:4px">The ribbon is full!</div>' +
+    '<div style="font-size:12px;color:#888">How many bows fit?</div>';
+  document.getElementById('answerInputWrap').style.display = 'block';
+  document.getElementById('answerInput').value = '';
+  document.getElementById('checkBtn').classList.add('show');
+  document.getElementById('answerFeedback').className = 'answer-feedback';
+
+  // store data on the button so checkAnswerInput can use it
+  var btn = document.getElementById('checkBtn');
+  btn._correct  = count;
+  btn._bowCm    = bowCm;
+  btn._totalCm  = totalCm;
+  btn._fraction = fraction;
+  btn._isHard   = isHard;
+
+  document.getElementById('answerInput').focus();
+}
+
+// runs when child clicks "Check the answer"
+function checkAnswerInput() {
+  var btn = document.getElementById('checkBtn');
+  var typed   = parseInt(document.getElementById('answerInput').value);
+  var correct = btn._correct;
+  var fb      = document.getElementById('answerFeedback');
+
+  if (isNaN(typed)) {
+    fb.className = 'answer-feedback bad';
+    fb.textContent = 'Please type a number first!';
+    return;
+  }
+
+  if (typed === correct) {
+    fb.className = 'answer-feedback ok';
+    fb.textContent = 'Correct! ' + correct + ' bows fit!';
+    document.getElementById('answerInputWrap').style.display = 'none';
+    document.getElementById('checkBtn').className = 'check-btn';
+
+    if (btn._isHard) {
+      // hard: mark the table row, move to next
+      document.getElementById('answerBox').innerHTML =
+        '<span class="big-num">' + correct + '</span>' +
+        '<div style="font-size:12px;color:#888;text-align:center">bows fit!</div>';
+      setTimeout(function() {
+        hardRowCorrect(correct);
+        resetAnswerPanel('Fill the next ribbon to find out!');
+      }, 900);
+
+    } else if (btn._bowCm) {
+      // medium: reveal the equation
+      document.getElementById('answerBox').innerHTML =
+        '<span class="big-num">' + correct + '</span>' +
+        '<div style="font-size:12px;color:#888;text-align:center">bows</div>' +
+        '<div style="font-size:12px;font-weight:bold;color:#444;margin-top:6px">' + correct + ' x ' + btn._bowCm + 'cm = ' + btn._totalCm + 'cm</div>' +
+        (btn._fraction ? '<div style="font-size:12px;font-weight:bold;color:#444;margin-top:3px">You need ' + btn._fraction + ' of the ribbon for 1 bow</div>' : '') +
+        '<div style="font-size:12px;font-weight:bold;color:#444;margin-top:3px">' + btn._totalCm + ' / ' + btn._bowCm + ' = ' + correct + '</div>';
+      var nb = document.getElementById('nb');
+      if (nb) nb.style.display = 'block';
+
+    } else {
+      // easy
+      document.getElementById('answerBox').innerHTML =
+        '<span class="big-num">' + correct + '</span>' +
+        '<div style="font-size:12px;color:#888;text-align:center">bows</div>';
+      var nb = document.getElementById('nb');
+      if (nb) nb.style.display = 'block';
+    }
+
+  } else {
+    // wrong answer
+    lives = Math.max(0, lives - 1);
+    document.getElementById('livesEl').textContent = lives;
+    fb.className = 'answer-feedback bad';
+    fb.textContent = 'Not quite! Look at the ribbon — count the sections carefully.';
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').focus();
+  }
+}
+
+
+/* =====================
+   DRAG AND DROP (easy)
+   ===================== */
+
+// wires up drag/drop and click on a ribbon
+function wireDragDrop(ribId, RIBBON_PX, bowPx, slots, emoji, onDone) {
+  var bowsFilled = 0;
+  var rib  = document.getElementById(ribId);
+  var fill = document.getElementById(ribId + 'Fill');
+  if (!rib) return;
+
+  function place() {
+    if (bowsFilled >= slots) return;
+    bowsFilled++;
+
+    // add red segment
+    var seg = document.createElement('div');
+    seg.className = 'ribbon-segment';
+    seg.style.flex = '1';
+    fill.appendChild(seg);
+
+    // add emoji below — use a % span too
+    addEmojiBelow(ribId + 'Count', emoji, (100 / slots), true);
+
+    if (bowsFilled >= slots) onDone(bowsFilled);
+  }
+
+  rib.addEventListener('dragover',  function(e) { e.preventDefault(); rib.classList.add('drag-over'); });
+  rib.addEventListener('dragleave', function()  { rib.classList.remove('drag-over'); });
+  rib.addEventListener('drop',      function(e) { e.preventDefault(); rib.classList.remove('drag-over'); place(); });
+  rib.addEventListener('click',     function()  { place(); });
+
+  // wire the bow strip
+  var bd = document.getElementById('bowDrag');
+  if (bd) {
+    bd.addEventListener('dragstart', function(e) {
+      e.dataTransfer.setData('text', 'bow');
+      selectedBow = null;
+    });
+  }
+}
+
+// click to select bow, then click ribbon to place
+function clickBow(el) {
+  if (selectedBow === el) {
+    selectedBow = null;
+    el.classList.remove('selected');
+  } else {
+    selectedBow = el;
+    el.classList.add('selected');
+  }
+}
+
+
+/* =====================
+   SHARED HELPERS
+   ===================== */
+
+// builds a ribbon section with grey drop target + emoji row below
+function makeRibbonSection(id, RIBBON_PX) {
+  return (
+    '<div class="ribbon-label-row"><span>The ribbon:</span></div>' +
+    '<div class="full-ribbon" id="' + id + '">' +
+      '<div class="ribbon-fill-area" id="' + id + 'Fill"></div>' +
+    '</div>' +
+    '<div class="bow-count-row" id="' + id + 'Count"></div>'
+  );
+}
+
+// adds an animated emoji under the ribbon when a bow is placed
+// isPercent: if true, width is a % of parent; otherwise px
+function addEmojiBelow(containerId, emoji, width, isPercent) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var sp = document.createElement('span');
+  sp.textContent = emoji;
+  if (isPercent) {
+    sp.style.cssText =
+      'font-size:16px;' +
+      'display:inline-flex;' +
+      'flex:1;' +
+      'align-items:center;justify-content:center;' +
+      'animation:popIn .2s ease';
+  } else {
+    sp.style.cssText =
+      'font-size:' + Math.min(18, Math.max(10, width)) + 'px;' +
+      'display:inline-block;' +
+      'width:' + width + 'px;' +
+      'text-align:center;' +
+      'animation:popIn .2s ease';
+  }
+  el.appendChild(sp);
+}
+
+// sets the left task area HTML and re-adds the rosie row
+function setTask(html) {
+  document.getElementById('taskArea').innerHTML =
+    '<div class="rosie-row"><div class="rosie-img">🐰</div><div class="speech" id="speechEl">...</div></div>' +
+    html;
+}
+
+// updates rosie's speech bubble
+function setRosie(msg) {
+  var el = document.getElementById('speechEl');
+  if (el) el.textContent = msg;
+}
+
+// resets the right panel back to default
+function resetAnswerPanel(msg) {
+  document.getElementById('answerPanel').style.display = 'flex';
+  document.getElementById('answerBox').innerHTML =
+    '<span style="color:#aaa;font-size:13px">' + (msg || 'Place bows to find out!') + '</span>';
+  document.getElementById('answerInputWrap').style.display = 'none';
+  document.getElementById('answerInput').value = '';
+  document.getElementById('checkBtn').className = 'check-btn';
+  document.getElementById('answerFeedback').className = 'answer-feedback';
+}
+
+// shows a green/red/hint feedback box
+function setFB(id, cls, msg) {
+  var el = document.getElementById(id);
+  if (el) { el.className = 'feedback ' + cls; el.textContent = msg; }
+}
+
+// returns a hint button HTML string
+function hintBtn(tip) {
+  return '<button class="hint-btn" onclick="showHint(\'' + escQ(tip) + '\')">Hint</button>';
+}
+
+function showHint(tip) {
+  var fb = document.getElementById('fb');
+  if (fb) { fb.className = 'feedback hint'; fb.textContent = 'Hint: ' + tip; }
+}
+
+// escapes single quotes so tips can go inside onclick attributes
+function escQ(s) { return (s || '').replace(/'/g, "&#39;"); }
+
+// shows a brief toast notification at the bottom
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 1400);
+}
+
+
+/* =====================
+   END GAME
+   ===================== */
+
+// endGame is assigned to showDiffComplete below
+
+
+/* =====================
+   START
+   ===================== */
+
+function startGame() {
+  // reset everything
+  lives = 3; ri = 0; score = 0; selectedBow = null;
+  medPlaced = 0;
+  hFilled = 0; hBowPx = 0; hPlaced = 0; hDone = {}; hCorrect = 0;
+  document.getElementById('livesEl').textContent = '3';
+  document.getElementById('answerPanel').style.display = 'flex';
+
+  if      (diff === 'easy')   renderEasy();
+  else if (diff === 'medium') renderMedium();
+  else                        renderHard();
+}
+
+/* =====================
+   DIFFICULTY PROGRESSION
+   ===================== */
+
+function endGame() {
+  var maxStars    = diff === 'hard' ? 6 : 3;
+  var earnedStars = diff === 'hard'
+    ? Math.min(6, Math.max(1, lives * 2))
+    : Math.min(3, Math.max(1, lives));
+
+  saveToServer(true, score, earnedStars, diff);
+
+  if (!window._ribbonDone) window._ribbonDone = {};
+  window._ribbonDone[diff] = true;
+
+  // Build stars display
+  var starsHTML = '';
+  for (var s = 1; s <= maxStars; s++) {
+    starsHTML += s <= earnedStars
+      ? '<span style="color:#2e7d52;font-size:1.9rem">&#9733;</span>'
+      : '<span style="color:#ddd;font-size:1.9rem">&#9733;</span>';
+  }
+
+  // Find the next undone difficulty to suggest
+  var allDiffs = ['easy', 'medium', 'hard'];
+  var nextDiff = null;
+  for (var i = 0; i < allDiffs.length; i++) {
+    if (!window._ribbonDone[allDiffs[i]]) { nextDiff = allDiffs[i]; break; }
+  }
+
+  // Build the "try next" button using data attribute to avoid quote issues
+  var nextBtnHTML = '';
+  if (nextDiff) {
+    var nextLabel = nextDiff.charAt(0).toUpperCase() + nextDiff.slice(1);
+    var nextColor = nextDiff === 'easy' ? '#3a9e5f' : nextDiff === 'medium' ? '#e07820' : '#b94040';
+    nextBtnHTML = '<br><button id="ndBtn" data-nd="' + nextDiff + '"'
+      + ' class="play-again" style="background:' + nextColor + ';margin-top:12px">'
+      + 'Try ' + nextLabel + '! &#8594;</button>';
+  } else {
+    nextBtnHTML = '<br><button id="ndBtn" data-nd="home"'
+      + ' class="play-again" style="background:#2e7d52;margin-top:12px">'
+      + 'All done! &#127942; Home</button>';
+  }
+
+  document.getElementById('answerPanel').style.display = 'none';
+  document.getElementById('taskArea').innerHTML =
+    '<div class="completion">'
+      + '<div style="font-size:52px;margin-bottom:8px">&#127942;</div>'
+      + '<h2>Congratulations!</h2>'
+      + '<p style="color:#666;font-size:14px;margin-bottom:8px">'
+          + diff.charAt(0).toUpperCase() + diff.slice(1) + ' complete!</p>'
+      + '<p style="font-weight:bold;font-size:14px;margin-bottom:6px">You earned:</p>'
+      + '<div>' + starsHTML + '</div>'
+      + '<p style="font-size:13px;color:#888;margin-top:4px">'
+          + earnedStars + ' / ' + maxStars + ' stars</p>'
+      + nextBtnHTML
+      + '<br><button class="play-again" onclick="startGame()"'
+          + ' style="background:#555;font-size:.8rem;padding:7px 14px;margin-top:10px">'
+          + 'Play again</button>'
+      + '&#160;<a href="/" class="btn sm red" style="margin-left:6px">&#8592; Home</a>'
+    + '</div>';
+
+  // Wire the "try next / go home" button after render
+  setTimeout(function() {
+    var btn = document.getElementById('ndBtn');
+    if (btn) btn.addEventListener('click', function() {
+      var nd = this.getAttribute('data-nd');
+      if (nd === 'home') { location.href = '/'; }
+      else { switchDiff(nd); }
+    });
+  }, 50);
+}
+
+
+function switchDiff(newDiff) {
+  diff = newDiff;
+  // Update the diff buttons visually
+  document.querySelectorAll('.diff-btn').forEach(function(b){ b.className = 'diff-btn'; });
+  var activeBtn = document.querySelector('.diff-btn[data-d="' + newDiff + '"]');
+  if (activeBtn) activeBtn.classList.add('active-' + newDiff);
+  // Update notice bar
+  var notices = { easy: 'Easy — Just have fun placing bows on the ribbon and see what you discover!',
+                  medium: 'Medium — Place the bows, watch the equation build up, then type the answer!',
+                  hard: 'Hard — Follow the logic and give more variations!' };
+  var colors  = { easy:   { bg:'#eafaf1', color:'#1a5c35', border:'#3a9e5f' },
+                  medium: { bg:'#fef9ec', color:'#784212', border:'#e07820' },
+                  hard:   { bg:'#fde8e8', color:'#7b241c', border:'#b94040' } };
+  var nb = document.getElementById('noticeBar');
+  if (nb) {
+    nb.textContent = notices[newDiff];
+    nb.style.backgroundColor = colors[newDiff].bg;
+    nb.style.color = colors[newDiff].color;
+    nb.style.borderLeftColor = colors[newDiff].border;
+  }
+  startGame();
+}
+
+
+startGame();
+</script>
+{% endblock %}

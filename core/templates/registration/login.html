@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login – Maths Mayhem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:#f5ede0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+    .lbox{background:#fff;border:3px solid #1a1a1a;box-shadow:7px 7px 0 #1a1a1a;padding:2rem 1.75rem;width:320px;text-align:center}
+    .mascot{font-size:3.5rem;display:block;animation:bob 1.3s ease-in-out infinite alternate;margin-bottom:.4rem}
+    @keyframes bob{0%{transform:translateY(0)}100%{transform:translateY(-8px)}}
+    .logo{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:#1a1a1a;margin-bottom:.1rem}
+    .sub{color:#888;font-size:.83rem;margin-bottom:1.25rem}
+    .field{display:flex;align-items:center;gap:.45rem;border:2.5px solid #1a1a1a;padding:.55rem .8rem;margin-bottom:.65rem;background:#fafafa}
+    .field:focus-within{border-color:#c0392b;background:#fff}
+    .field input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:.93rem;width:100%;color:#1a1a1a}
+    .errs{color:#c0392b;font-size:.8rem;font-weight:800;background:#fde8e8;border:2px solid #c0392b;padding:.38rem .65rem;margin-bottom:.6rem;text-align:left}
+    .errs li{margin-left:1rem}
+    .lbtn{width:100%;padding:.8rem;background:#c0392b;color:#fff;border:3px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:1.05rem;font-weight:800;cursor:pointer;box-shadow:4px 4px 0 #1a1a1a;transition:transform .1s,box-shadow .1s;margin-bottom:.75rem}
+    .lbtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #1a1a1a}
+    .lbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #1a1a1a}
+    .reg-link{display:block;padding:.65rem;background:#f5ede0;border:2.5px solid #1a1a1a;font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;text-decoration:none;color:#1a1a1a;box-shadow:3px 3px 0 #1a1a1a;transition:all .1s}
+    .reg-link:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a1a1a}
+    .hint{margin-top:.85rem;font-size:.73rem;color:#888;background:#f5ede0;padding:.45rem;line-height:1.7}
+    .hint code{background:#e5ddd4;padding:1px 4px}
+  </style>
+</head>
+<body>
+  <div class="lbox">
+    <span class="mascot">🧮</span>
+    <div class="logo">Maths Mayhem</div>
+    <div class="sub">Log in to save your progress!</div>
+    {% if form.non_field_errors %}
+      <div class="errs">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="field"><span>👤</span><input type="text" name="username" placeholder="Username" autocomplete="username" autofocus/></div>
+      <div class="field"><span>🔑</span><input type="password" name="password" placeholder="Password" autocomplete="current-password"/></div>
+      <button class="lbtn" type="submit">Let's go!</button>
+    </form>
+    <a class="reg-link" href="{% url 'core:register' %}">New here? Create an account →</a>
+    <div class="hint">Demo account: <code>demochild</code> / <code>demo12345</code></div>
+  </div>
+</body>
+</html>

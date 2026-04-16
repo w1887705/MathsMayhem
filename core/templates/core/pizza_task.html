@@ -2,7 +2,7 @@
 {% block title %}Pizza Division – Maths Mayhem{% endblock %}
 {% block extra_styles %}
 .game-wrap{max-width:920px;margin:0 auto;padding:1.2rem}
-.diff-bar{background:#e8e0d0;border-bottom:1px solid #ccc;padding:8px 0 8px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.diff-bar{background:#e8e0d0;border-bottom:1px solid #ccc;padding:8px 0;display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .diff-bar label{font-size:14px;font-weight:bold}
 .diff-btn{padding:5px 16px;border:2px solid #999;background:white;font-size:13px;font-weight:bold;cursor:pointer;border-radius:4px}
 .diff-btn.active-easy{background:#3a9e5f;color:white;border-color:#3a9e5f}
@@ -14,28 +14,29 @@
 .prog-bar-fill{height:100%;background:#c0392b;transition:width .4s ease}
 .prog-lbl{font-family:'Baloo 2',cursive;font-size:.78rem;font-weight:800;white-space:nowrap}
 .rosie-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
-.speech{flex:1;background:white;border:2px solid #999;border-radius:4px 12px 12px 12px;padding:9px 13px;font-size:14px;font-weight:bold;line-height:1.5;position:relative}
-.speech::before{content:'';position:absolute;bottom:-9px;left:12px;border:5px solid transparent;border-top-color:#999}
-.speech::after{content:'';position:absolute;bottom:-6px;left:14px;border:3px solid transparent;border-top-color:white}
+.speech{flex:1;background:white;border:2px solid #999;border-radius:4px 12px 12px 12px;padding:9px 13px;font-size:14px;font-weight:bold;line-height:1.5}
 .card{background:white;border:2px solid #ccc;padding:16px;margin-bottom:12px;border-radius:4px}
 .card-label{font-size:12px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.ratio-bar{background:#fef9ec;border:1px solid #e07820;border-radius:4px;padding:8px 12px;font-size:12px;color:#784212;margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.ratio-bar span{font-weight:bold}
 .pizza-layout{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-bottom:12px}
 .pizza-left{flex-shrink:0}
 .pizza-svg-wrap{width:210px;height:210px}
 .pizza-svg-wrap svg{width:100%;height:100%}
 .pizza-info{font-size:13px;font-weight:bold;color:#555;text-align:center;margin-top:4px}
 .people-grid{display:flex;gap:10px;flex-wrap:wrap;flex:1}
-.person-card{background:#f9f4ec;border:2.5px solid #ccc;border-radius:8px;padding:10px 8px;text-align:center;min-width:82px;flex:1;max-width:120px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s;position:relative}
+.person-card{background:#f9f4ec;border:2.5px solid #ccc;border-radius:8px;padding:10px 8px;text-align:center;min-width:88px;flex:1;max-width:130px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
 .person-card:hover{border-color:#c0392b;transform:translateY(-2px)}
 .person-card.drag-over{border-color:#c0392b;background:#fff0f0}
 .person-card.correct-box{border-color:#27ae60;background:#eafaf1;cursor:default}
 .person-card.wrong-box{border-color:#c0392b;background:#fadbd8}
-.person-emoji{font-size:32px;line-height:1;margin-bottom:2px}
+.person-emoji{font-size:30px;line-height:1;margin-bottom:2px}
 .person-name{font-size:11px;font-weight:bold;color:#444}
-.person-age{font-size:10px;color:#888;margin-bottom:3px}
-.slice-stack{font-size:13px;min-height:16px;margin:3px 0;word-break:break-all;line-height:1.3}
+.person-age{font-size:10px;color:#888}
+.person-needs{font-size:11px;color:#2980b9;font-weight:bold;margin:3px 0}
+.slice-stack{font-size:12px;min-height:16px;margin:3px 0;line-height:1.3}
 .person-count{font-size:15px;font-weight:bold;color:#c0392b}
-.click-hint{font-size:9px;color:#aaa;font-style:italic;margin-top:1px}
+.click-hint{font-size:9px;color:#aaa;font-style:italic}
 .reset-btn{font-size:10px;padding:2px 6px;border:1px solid #aaa;background:#f0f0f0;cursor:pointer;border-radius:3px;margin-top:3px}
 .pool-area{background:#f9f4ec;border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:10px}
 .pool-label{font-size:12px;font-weight:bold;color:#555;margin-bottom:6px}
@@ -43,9 +44,8 @@
 .drag-slice{font-size:22px;cursor:grab;user-select:none;transition:transform .1s;display:inline-block}
 .drag-slice:hover{transform:scale(1.2)}
 .drag-slice.selected{outline:3px solid #c0392b;border-radius:4px;transform:scale(1.15)}
-/* hard setup */
-.setup-box{background:white;border:2px solid #ccc;border-radius:8px;padding:18px;max-width:500px}
-.setup-title{font-size:15px;font-weight:bold;margin-bottom:12px}
+.setup-box{background:white;border:2px solid #ccc;border-radius:8px;padding:18px;max-width:520px}
+.setup-title{font-size:15px;font-weight:bold;margin-bottom:8px}
 .setup-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:6px;display:block;margin-top:10px}
 .char-checkboxes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px}
 .char-check-item{display:flex;align-items:center;gap:6px;background:#f5f5f5;border:2px solid #ccc;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold;transition:border-color .15s,background .15s}
@@ -55,7 +55,6 @@
 .pizza-hint.warn{background:#fef9ec;border-color:#e07820;color:#784212}
 .start-btn{padding:10px 24px;background:#b94040;color:white;border:none;font-size:14px;font-weight:bold;cursor:pointer;border-radius:4px;margin-top:10px}
 .start-btn:hover{background:#933232}
-/* question */
 .q-box{background:#eef6ff;border:2px solid #2980b9;border-radius:6px;padding:14px;margin-top:12px}
 .q-title{font-size:13px;font-weight:bold;color:#1a4f7a;margin-bottom:8px}
 .q-text{font-size:15px;font-weight:bold;margin-bottom:12px;line-height:1.7}
@@ -74,7 +73,6 @@
 .completion{text-align:center;padding:40px 20px}
 .completion h2{font-size:26px;margin-bottom:8px}
 .play-again{padding:11px 24px;background:#e07820;color:white;border:none;font-size:14px;font-weight:bold;cursor:pointer;border-radius:4px;margin-top:12px}
-.play-again:hover{background:#c0621a}
 .toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%) translateY(60px);background:#333;color:white;padding:7px 16px;font-size:13px;font-weight:bold;z-index:9999;transition:transform .3s;border-radius:4px;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
@@ -107,104 +105,82 @@ var SAVE_URL   = "{% url 'core:save_progress' task.slug %}";
 var CSRF_TOKEN = "{{ csrf_token }}";
 var OWNED_THEMES = {{ owned_themes|safe }};
 
-/* ── CHARACTERS ── */
+/* ── CHARACTERS
+   Ratios based on calorie needs (adult male = 4 as base unit):
+   Junior(5) = 1,  Teen(16F) = 2,  Adult Female(25) = 3,  Adult Male(30) = 4
+   Pizza slices = total ratio, so each person gets exactly their ratio number of slices */
 var PEOPLE = [
-  { emoji:'🧒', name:'Lucy',   age:8,  label:'Junior'  },
-  { emoji:'🧒', name:'Jake',   age:10, label:'Junior'  },
-  { emoji:'🧑', name:'Emma',   age:14, label:'Teen'    },
-  { emoji:'🧑', name:'Noah',   age:16, label:'Teen'    },
-  { emoji:'🧑', name:'Sophie', age:25, label:'Adult'   },
-  { emoji:'🧑', name:'Daniel', age:28, label:'Adult'   },
-  { emoji:'🧑', name:'Sam',    age:35, label:'Senior'  },
-  { emoji:'🧑', name:'Alex',   age:40, label:'Senior'  },
+  { emoji:'🧒', name:'Junior',  age:5,  label:'Junior (age 5)',        ratio:1 },
+  { emoji:'👧', name:'Teen',    age:16, label:'Teen (age 16)',          ratio:2 },
+  { emoji:'👩', name:'Adult F', age:25, label:'Adult female (age 25)', ratio:3 },
+  { emoji:'👨', name:'Adult M', age:30, label:'Adult male (age 30)',   ratio:4 },
 ];
 
 /* ── PIZZA THEMES ── */
 var PIZZA_THEMES = {
   halloween: {
-    sliceA:'#e67e22', sliceB:'#1a1a1a', crust:'#d35400',
-    sauce:'#8B1A00', cheese:'#c17f24',
+    sliceA:'#e67e22', sliceB:'#1a1a1a', crust:'#d35400', sauce:'#8B1A00', cheese:'#c17f24',
     label:'🎃 Halloween Pizza',
     people:[
-      { emoji:'🎃', name:'Ghost',   age:8,  label:'Junior' },
-      { emoji:'🧟', name:'Zombie',  age:12, label:'Junior' },
-      { emoji:'🧛', name:'Vampire', age:16, label:'Teen'   },
-      { emoji:'🧙', name:'Witch',   age:25, label:'Adult'  },
-      { emoji:'💀', name:'Skull',   age:30, label:'Adult'  },
-      { emoji:'🦇', name:'Bat',     age:14, label:'Teen'   },
-      { emoji:'🕷️', name:'Spider',  age:20, label:'Adult'  },
-      { emoji:'👻', name:'Spooky',  age:10, label:'Junior' },
+      { emoji:'🎃', name:'Ghost',   age:5,  label:'Junior',  ratio:1 },
+      { emoji:'🧟', name:'Zombie',  age:16, label:'Teen',    ratio:2 },
+      { emoji:'🧛', name:'Vampire', age:25, label:'Adult F', ratio:3 },
+      { emoji:'🧙', name:'Witch',   age:30, label:'Adult M', ratio:4 },
     ]
   },
   christmas: {
-    sliceA:'#c0392b', sliceB:'#2e7d52', crust:'#922b21',
-    sauce:'#7b241c', cheese:'#f0d080',
+    sliceA:'#c0392b', sliceB:'#2e7d52', crust:'#922b21', sauce:'#7b241c', cheese:'#f0d080',
     label:'🎄 Christmas Pizza',
     people:[
-      { emoji:'🎅', name:'Santa',     age:60, label:'Senior' },
-      { emoji:'🤶', name:'Mrs Claus', age:58, label:'Senior' },
-      { emoji:'🦌', name:'Reindeer',  age:5,  label:'Junior' },
-      { emoji:'⛄', name:'Snowman',   age:1,  label:'Junior' },
-      { emoji:'🧝', name:'Elf',       age:15, label:'Teen'   },
-      { emoji:'🎁', name:'Gifty',     age:10, label:'Junior' },
-      { emoji:'❄️', name:'Frosty',    age:2,  label:'Junior' },
-      { emoji:'🌟', name:'Star',      age:99, label:'Senior' },
+      { emoji:'🦌', name:'Reindeer', age:5,  label:'Junior',  ratio:1 },
+      { emoji:'🧝', name:'Elf',      age:16, label:'Teen',    ratio:2 },
+      { emoji:'🤶', name:'Mrs Claus',age:25, label:'Adult F', ratio:3 },
+      { emoji:'🎅', name:'Santa',    age:30, label:'Adult M', ratio:4 },
     ]
   },
 };
 var activeTheme = null;
 (function(){
-  var keys = ['halloween','christmas'];
-  for(var i=0;i<keys.length;i++){
-    if(OWNED_THEMES.indexOf(keys[i])>=0){ activeTheme=keys[i]; break; }
-  }
+  ['halloween','christmas'].forEach(function(k){
+    if(!activeTheme && OWNED_THEMES.indexOf(k)>=0) activeTheme=k;
+  });
 })();
 
-/* ── ROUNDS ── */
-var ROUNDS = {
-  easy: [
-    { people:[0,1], slices:8,  msg:"Lucy (8) and Jake (10) are sharing a pizza! Click a person to give them a slice, or drag slices onto them." },
-    { people:[2,3], slices:10, msg:"Emma (14) and Noah (16) are splitting 10 slices equally." },
-    { people:[4,5], slices:6,  msg:"Sophie (25) and Daniel (28) are sharing 6 slices equally." },
-  ],
-  medium: [
-    { people:[0,1,2], slices:9,  msg:"Lucy, Jake and Emma are sharing 9 slices equally between 3 people." },
-    { people:[1,3,4], slices:12, msg:"Jake, Noah and Sophie are splitting 12 slices equally between 3 people." },
-    { people:[2,5,6], slices:15, msg:"Emma, Daniel and Sam are sharing 15 slices equally between 3 people." },
-  ],
-  hard: [],  // hard is custom — see renderHard
-};
+function getPeople(){
+  return (activeTheme && PIZZA_THEMES[activeTheme].people) ? PIZZA_THEMES[activeTheme].people : PEOPLE;
+}
 
-/* Lookup table: n people → slices that divide evenly (multiples of n, 6-20) */
-var SLICES_FOR = {
-  2: [8, 10, 12],
-  3: [9, 12, 15],
-  4: [8, 12, 16],
-  5: [10, 15, 20],
-  6: [12, 18],
-  7: [14],
-  8: [8, 16],
+/* ── ROUNDS ──
+   Easy: equal (everyone gets same slices — 2 characters, 6 slices each = 12 total)
+   Medium: proportional — pizza = sum of ratios so each person gets exactly their ratio number */
+var ROUNDS = {
+  easy:[
+    { people:[0,3], slices:8,  equal:true, msg:"Junior (age 5) and Adult Male (age 30) share 8 slices equally — everyone gets the same!" },
+    { people:[1,2], slices:6,  equal:true, msg:"Teen (age 16) and Adult Female (age 25) split 6 slices equally." },
+    { people:[0,2], slices:10, equal:true, msg:"Junior and Adult Female share 10 slices equally." },
+  ],
+  medium:[
+    /* Junior(1)+AdultM(4) = 5 ratio units → 5 slices: J gets 1, AdultM gets 4 */
+    { people:[0,3], slices:5,  equal:false, msg:"Junior (ratio 1) and Adult Male (ratio 4) share 5 slices — bigger person eats more!" },
+    /* Teen(2)+AdultF(3) = 5 ratio units → 5 slices: T gets 2, AdultF gets 3 */
+    { people:[1,2], slices:5,  equal:false, msg:"Teen (ratio 2) and Adult Female (ratio 3) share 5 slices proportionally." },
+    /* Junior(1)+Teen(2)+AdultM(4) = 7 → 7 slices: J=1, T=2, AdultM=4 */
+    { people:[0,1,3], slices:7, equal:false, msg:"Junior, Teen and Adult Male share 7 slices — each gets slices equal to their ratio!" },
+  ],
+  hard:[],
 };
 
 var diff='easy', ri=0, hardRi=0, HARD_TOTAL=3, lives=3, score=0;
 var assigned=[], totalSlices=0, slicesLeft=0;
-var roundPeople=[], selectedSlice=null;
+var roundPeople=[], roundRatios=[], selectedSlice=null, isProportional=false;
 
-function saveToServer(completed, pts, stars, difficulty) {
-  var maxRounds = diff==='hard' ? HARD_TOTAL : ROUNDS[diff].length;
-  fetch(SAVE_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
-    body: JSON.stringify({completed:completed, score:pts||0, max_score:maxRounds*20,
-                          stars:stars||Math.max(1,lives), difficulty:difficulty||diff})
+function saveToServer(completed,pts,stars,difficulty){
+  var maxR=diff==='hard'?HARD_TOTAL:ROUNDS[diff].length;
+  fetch(SAVE_URL,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
+    body:JSON.stringify({completed:completed,score:pts||0,max_score:maxR*20,stars:stars||Math.max(1,lives),difficulty:difficulty||diff})
   }).catch(function(){});
 }
-
-function toast(msg) {
-  var t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(function(){t.classList.remove('show');},1500);
-}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1500);}
 function setRosie(msg){var el=document.getElementById('speechEl');if(el)el.textContent=msg;}
 function updateProgress(){
   if(diff==='hard'){
@@ -218,118 +194,83 @@ function updateProgress(){
   document.getElementById('livesDisp').textContent=lives;
 }
 
-/* ── REAL PIZZA SVG with sauce, cheese, toppings ── */
-function buildPizzaSVG(n) {
-  var th = activeTheme ? PIZZA_THEMES[activeTheme] : null;
-  var crustCol  = th ? th.crust  : '#c0632a';
-  var sauceCol  = th ? th.sauce  : '#c0392b';
-  var cheeseCol = th ? th.cheese : '#f0c040';
-
-  var cx=110, cy=110, r=100, rc=94, ri2=80;
-  var cuts='', toppings='';
-
-  // Cut lines
+/* ── REAL PIZZA SVG ── */
+function buildPizzaSVG(n){
+  var th=activeTheme?PIZZA_THEMES[activeTheme]:null;
+  var crustCol=th?th.crust:'#c0632a', sauceCol=th?th.sauce:'#c0392b', cheeseCol=th?th.cheese:'#f0c040';
+  var cx=110,cy=110,r=100,rc=94,ri2=80,cuts='',toppings='';
   for(var i=0;i<n;i++){
     var a=(i/n)*2*Math.PI-Math.PI/2;
-    var ex=cx+r*Math.cos(a), ey=cy+r*Math.sin(a);
+    var ex=cx+r*Math.cos(a),ey=cy+r*Math.sin(a);
     cuts+='<line x1="'+cx+'" y1="'+cy+'" x2="'+ex.toFixed(1)+'" y2="'+ey.toFixed(1)+'" stroke="#8B4513" stroke-width="2.5"/>';
   }
-
-  // Scatter toppings (pepperoni + olive pattern)
-  var toppingSeeds=[
-    {a:0.4,   d:55}, {a:1.2,  d:60}, {a:2.1,  d:50}, {a:3.0,  d:58},
-    {a:3.8,   d:52}, {a:4.7,  d:62}, {a:5.5,  d:48}, {a:0.9,  d:72},
-    {a:1.9,   d:68}, {a:2.8,  d:74}, {a:3.7,  d:70}, {a:4.6,  d:65},
-    {a:5.2,   d:78}, {a:0.2,  d:80}, {a:1.5,  d:82}, {a:3.3,  d:76},
-    {a:0.7,   d:38}, {a:2.5,  d:35}, {a:4.2,  d:40}, {a:5.8,  d:36},
-  ];
-  toppingSeeds.forEach(function(t,idx){
-    var tx=cx+t.d*Math.cos(t.a), ty=cy+t.d*Math.sin(t.a);
+  var seeds=[{a:0.4,d:55},{a:1.2,d:60},{a:2.1,d:50},{a:3.0,d:58},{a:3.8,d:52},{a:4.7,d:62},
+             {a:5.5,d:48},{a:0.9,d:72},{a:1.9,d:68},{a:2.8,d:74},{a:3.7,d:70},{a:4.6,d:65}];
+  seeds.forEach(function(s,idx){
+    var tx=cx+s.d*Math.cos(s.a),ty=cy+s.d*Math.sin(s.a);
     if(idx%3===0){
-      // olive (black circle)
       toppings+='<circle cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="4" fill="#1a1a1a" opacity=".8"/>';
-      toppings+='<circle cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="2" fill="#555" opacity=".6"/>';
     } else {
-      // pepperoni
-      toppings+='<circle cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="6.5" fill="'+( th ? th.sliceA : '#b94040')+'"/>';
-      toppings+='<circle cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="4" fill="'+( th ? th.sliceB : '#922b21')+'"/>';
+      toppings+='<circle cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="6.5" fill="'+(th?th.sliceA:'#b94040')+'"/>';
+      toppings+='<circle cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="4" fill="'+(th?th.sliceB:'#922b21')+'"/>';
     }
   });
-
-  // Slice count label
-  var label = '<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">'+n+' slices</text>';
-
   return '<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">'
-    // crust ring
-    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+crustCol+'" stroke="#7a3a1a" stroke-width="2"/>'
-    // sauce
-    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+rc+'" fill="'+sauceCol+'"/>'
-    // cheese
-    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+ri2+'" fill="'+cheeseCol+'"/>'
-    // toppings UNDER cut lines
-    +toppings
-    // cut lines
-    +cuts
-    // slice number label
-    +label
+    +'<circle cx="110" cy="110" r="'+r+'" fill="'+crustCol+'" stroke="#7a3a1a" stroke-width="2"/>'
+    +'<circle cx="110" cy="110" r="'+rc+'" fill="'+sauceCol+'"/>'
+    +'<circle cx="110" cy="110" r="'+ri2+'" fill="'+cheeseCol+'"/>'
+    +toppings+cuts
+    +'<text x="110" y="115" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">'+n+' slices</text>'
   +'</svg>';
 }
 
-/* ── HARD MODE ── */
-function renderHard() {
+/* ── HARD SETUP ── */
+function renderHard(){
   updateProgress();
-  setRosie('Round '+(hardRi+1)+' of '+HARD_TOTAL+' — Choose your characters, then start!');
-
-  // Progress tracker
+  setRosie('Round '+(hardRi+1)+' of '+HARD_TOTAL+' — Choose characters. They eat proportionally to their ratio!');
   var boxes='';
   for(var b=0;b<HARD_TOTAL;b++){
     if(b<hardRi) boxes+='<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#2e7d52;border:2px solid #1a5c35;border-radius:4px;font-size:14px;margin:0 3px">✅</span>';
     else if(b===hardRi) boxes+='<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#b94040;color:white;border:2px solid #922b21;border-radius:4px;font-size:11px;font-weight:bold;margin:0 3px">'+(b+1)+'</span>';
     else boxes+='<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#f5f5f5;border:2px solid #ccc;border-radius:4px;font-size:11px;color:#aaa;margin:0 3px">'+(b+1)+'</span>';
   }
-
-  var sourcePeople = (activeTheme && PIZZA_THEMES[activeTheme].people) ? PIZZA_THEMES[activeTheme].people : PEOPLE;
-  var charChecks = sourcePeople.map(function(p,i){
+  var src=getPeople();
+  var charChecks=src.map(function(p,i){
     return '<label class="char-check-item" id="hplbl'+i+'">'
-      +'<input type="checkbox" id="hpchk'+i+'" onchange="hardToggle('+i+')" />'
-      +p.emoji+' '+p.name+' ('+p.age+')'
+      +'<input type="checkbox" id="hpchk'+i+'"/>'
+      +p.emoji+' '+p.name+' <span style="color:#888;font-size:11px;">(ratio '+p.ratio+')</span>'
     +'</label>';
   }).join('');
 
-  document.getElementById('mainCard').innerHTML =
+  document.getElementById('mainCard').innerHTML=
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">'
       +'<span style="font-size:13px;font-weight:bold;color:#555">Progress:</span>'+boxes
     +'</div>'
     +'<div class="setup-box">'
       +'<div class="setup-title">Round '+(hardRi+1)+' — Choose your characters!</div>'
-      +'<span class="setup-label">Select 2–8 characters:</span>'
+      +'<div class="ratio-bar">🍕 Ratios: '
+        +src.map(function(p){return p.emoji+' <span>'+p.name+' = '+p.ratio+'</span>';}).join(' &nbsp;|&nbsp; ')
+      +'</div>'
+      +'<span class="setup-label">Select 2–4 characters (pizza = total ratio in slices):</span>'
       +'<div class="char-checkboxes" id="hardCharChecks">'+charChecks+'</div>'
-      +'<div class="pizza-hint" id="hardPizzaHint">Select characters to see which pizza you will get!</div>'
+      +'<div class="pizza-hint warn" id="hardPizzaHint">Select at least 2 characters!</div>'
       +'<div class="feedback" id="hardFb"></div>'
       +'<button class="start-btn" onclick="startHardRound()">Start!</button>'
     +'</div>';
 
-  // Wire checkbox change
-  sourcePeople.forEach(function(_,i){
-    var el = document.getElementById('hpchk'+i);
-    if(el) el.addEventListener('change', function(){ hardToggle(i); });
+  src.forEach(function(_,i){
+    var el=document.getElementById('hpchk'+i);
+    if(el) el.addEventListener('change',function(){
+      var lbl=document.getElementById('hplbl'+i);
+      if(this.checked) lbl.classList.add('checked'); else lbl.classList.remove('checked');
+      hardUpdateHint();
+    });
   });
-}
-
-function hardToggle(i){
-  var lbl = document.getElementById('hplbl'+i);
-  var chk = document.getElementById('hpchk'+i);
-  if(chk.checked) lbl.classList.add('checked'); else lbl.classList.remove('checked');
-  hardUpdateHint();
 }
 
 function hardGetSelected(){
   var sel=[];
-  var sourcePeople=(activeTheme&&PIZZA_THEMES[activeTheme].people)?PIZZA_THEMES[activeTheme].people:PEOPLE;
-  sourcePeople.forEach(function(_,i){
-    var chk=document.getElementById('hpchk'+i);
-    if(chk&&chk.checked) sel.push(i);
-  });
+  getPeople().forEach(function(_,i){var chk=document.getElementById('hpchk'+i);if(chk&&chk.checked) sel.push(i);});
   return sel;
 }
 
@@ -337,54 +278,58 @@ function hardUpdateHint(){
   var sel=hardGetSelected();
   var hint=document.getElementById('hardPizzaHint');
   if(!hint) return;
-  if(sel.length<2){
-    hint.className='pizza-hint warn';
-    hint.textContent='Pick at least 2 characters!';
-    return;
-  }
-  var n=sel.length;
-  var options=SLICES_FOR[n]||[n*2];
+  if(sel.length<2){hint.className='pizza-hint warn';hint.textContent='Select at least 2 characters!';return;}
+  var src=getPeople();
+  var totalRatio=sel.reduce(function(s,i){return s+src[i].ratio;},0);
   hint.className='pizza-hint';
-  hint.textContent='With '+n+' people you will get a pizza with '+options[0]+' slices — '+options[0]+' ÷ '+n+' = '+(options[0]/n)+' slices each!';
+  hint.innerHTML='Pizza has <strong>'+totalRatio+' slices</strong> (= total ratio). '
+    +sel.map(function(i){var p=src[i];return p.emoji+' '+p.name+' gets <strong>'+p.ratio+'</strong>';}).join(', ')+'&nbsp; slice(s).';
 }
 
 function startHardRound(){
   var sel=hardGetSelected();
   var fb=document.getElementById('hardFb');
-  if(sel.length<2){
-    fb.className='feedback bad'; fb.textContent='Pick at least 2 characters!'; return;
-  }
-  var n=sel.length;
-  var options=SLICES_FOR[n]||[n*2];
-  // Pick a random valid slice count from the options
-  var slices=options[Math.floor(Math.random()*options.length)];
-  var sourcePeople=(activeTheme&&PIZZA_THEMES[activeTheme].people)?PIZZA_THEMES[activeTheme].people:PEOPLE;
-  roundPeople=sel.map(function(i){return sourcePeople[i]||PEOPLE[i];});
-  totalSlices=slices; slicesLeft=slices;
+  if(sel.length<2){fb.className='feedback bad';fb.textContent='Pick at least 2 characters!';return;}
+  var src=getPeople();
+  var totalRatio=sel.reduce(function(s,i){return s+src[i].ratio;},0);
+  totalSlices=totalRatio;
+  slicesLeft=totalSlices;
+  roundPeople=sel.map(function(i){return src[i];});
+  roundRatios=sel.map(function(i){return src[i].ratio;});
   assigned=roundPeople.map(function(){return 0;});
   selectedSlice=null;
-  setRosie(roundPeople.map(function(p){return p.name;}).join(', ')+' are sharing a pizza with '+slices+' slices equally! Drag or click slices onto each person.');
+  isProportional=true;
+  setRosie('Share '+totalSlices+' slices between '+roundPeople.map(function(p){return p.name;}).join(', ')+'. Each gets their ratio number of slices!');
   buildGameUI();
 }
 
-/* ── RENDER NORMAL ROUND ── */
-function renderRound() {
+/* ── NORMAL ROUNDS ── */
+function renderRound(){
   var r=ROUNDS[diff][ri];
-  var sourcePeople=(activeTheme&&PIZZA_THEMES[activeTheme].people)?PIZZA_THEMES[activeTheme].people:PEOPLE;
-  roundPeople=r.people.map(function(i){return sourcePeople[i]||PEOPLE[i];});
-  totalSlices=r.slices; slicesLeft=r.slices;
+  var src=getPeople();
+  roundPeople=r.people.map(function(i){return src[i]||PEOPLE[i];});
+  totalSlices=r.slices;
+  slicesLeft=totalSlices;
+  roundRatios=roundPeople.map(function(p){return p.ratio;});
   assigned=roundPeople.map(function(){return 0;});
   selectedSlice=null;
+  isProportional=!r.equal;
   setRosie(r.msg);
   updateProgress();
   buildGameUI();
 }
 
-/* ── BUILD THE SHARED GAME UI ── */
+/* ── BUILD GAME UI ── */
 function buildGameUI(){
   var poolHTML='';
   for(var i=0;i<totalSlices;i++){
-    poolHTML+='<span class="drag-slice" id="ps'+i+'" data-idx="'+i+'" draggable="true" onclick="clickSlice(this)" ondragstart="sliceDragStart(this)">🍕</span>';
+    poolHTML+='<span class="drag-slice" id="ps'+i+'" draggable="true" onclick="clickSlice(this)" ondragstart="sliceDragStart(this)">🍕</span>';
+  }
+  var ratioBar='';
+  if(isProportional){
+    ratioBar='<div class="ratio-bar">🍕 Share guide: '
+      +roundPeople.map(function(p,idx){return p.emoji+' <span>'+p.name+' needs '+roundRatios[idx]+' slice'+(roundRatios[idx]>1?'s':'')+'</span>';}).join(' &nbsp;·&nbsp; ')
+    +'</div>';
   }
   var peopleHTML=roundPeople.map(function(p,idx){
     return '<div class="person-card" id="pc'+idx+'"'
@@ -394,19 +339,20 @@ function buildGameUI(){
       +' onclick="clickPerson('+idx+')">'
       +'<div class="person-emoji">'+p.emoji+'</div>'
       +'<div class="person-name">'+p.name+'</div>'
-      +'<div class="person-age">'+p.age+' ('+p.label+')</div>'
+      +'<div class="person-age">'+p.label+'</div>'
+      +(isProportional?'<div class="person-needs">needs '+roundRatios[idx]+' 🍕</div>':'')
       +'<div class="slice-stack" id="stk'+idx+'"></div>'
       +'<div class="person-count"><span id="cnt'+idx+'">0</span> 🍕</div>'
-      +'<div class="click-hint">Click to add slice</div>'
+      +'<div class="click-hint">Click to add</div>'
       +'<button class="reset-btn" onclick="event.stopPropagation();resetPerson('+idx+')">Reset</button>'
     +'</div>';
   }).join('');
-
   var thLabel=(activeTheme?PIZZA_THEMES[activeTheme].label:'Pizza Division');
-
+  var cardLabel=diff==='hard'?'Hard Round '+(hardRi+1)+'/'+HARD_TOTAL+' — '+thLabel:diff.charAt(0).toUpperCase()+diff.slice(1)+' — '+thLabel;
   document.getElementById('mainCard').innerHTML=
     '<div class="card">'
-      +'<div class="card-label">'+(diff==='hard'?'Hard Round '+(hardRi+1)+' / '+HARD_TOTAL:diff.charAt(0).toUpperCase()+diff.slice(1))+' — '+thLabel+'</div>'
+      +'<div class="card-label">'+cardLabel+'</div>'
+      +ratioBar
       +'<div class="pizza-layout">'
         +'<div class="pizza-left">'
           +'<div class="pizza-svg-wrap">'+buildPizzaSVG(totalSlices)+'</div>'
@@ -415,7 +361,7 @@ function buildGameUI(){
         +'<div class="people-grid">'+peopleHTML+'</div>'
       +'</div>'
       +'<div class="pool-area">'
-        +'<div class="pool-label">🍕 Pool — <span id="poolLeft">'+totalSlices+'</span> left. Drag a slice, click a slice then a person, or just click a person directly.</div>'
+        +'<div class="pool-label">🍕 Pool — <span id="poolLeft">'+totalSlices+'</span> left. Click a person directly or drag slices.</div>'
         +'<div class="pool-slices" id="slicePool">'+poolHTML+'</div>'
       +'</div>'
       +'<div class="feedback" id="fb"></div>'
@@ -439,16 +385,8 @@ function dropOnPerson(e,idx){
   if(selectedSlice){placeSlice(idx,selectedSlice);selectedSlice.classList.remove('selected');selectedSlice=null;}
 }
 function clickPerson(idx){
-  if(selectedSlice){
-    placeSlice(idx,selectedSlice);
-    selectedSlice.classList.remove('selected');selectedSlice=null;
-  } else {
-    // click person directly — grab next available slice
-    var next=Array.from(document.querySelectorAll('.drag-slice')).find(function(el){
-      return el.style.display !== 'none';
-    });
-    if(next) placeSlice(idx,next);
-  }
+  if(selectedSlice){placeSlice(idx,selectedSlice);selectedSlice.classList.remove('selected');selectedSlice=null;}
+  else{var next=Array.from(document.querySelectorAll('.drag-slice')).find(function(el){return el.style.display!=='none';});if(next)placeSlice(idx,next);}
 }
 function placeSlice(charIdx,sliceEl){
   if(slicesLeft<=0||sliceEl.style.display==='none') return;
@@ -456,14 +394,8 @@ function placeSlice(charIdx,sliceEl){
   assigned[charIdx]++;slicesLeft--;
   document.getElementById('poolLeft').textContent=slicesLeft;
   var stk=document.getElementById('stk'+charIdx);
-  if(stk.querySelectorAll('.ss').length<8){
-    var sp=document.createElement('span');sp.className='ss';sp.textContent='🍕';
-    sp.style.animation='popIn .15s ease';sp.style.fontSize='12px';stk.appendChild(sp);
-  } else {
-    var ov=stk.querySelector('.ov');
-    if(!ov){ov=document.createElement('span');ov.className='ov';ov.style.fontSize='10px';ov.style.color='#888';stk.appendChild(ov);}
-    ov.textContent='+'+(assigned[charIdx]-8)+' more';
-  }
+  if(stk.querySelectorAll('.ss').length<8){var sp=document.createElement('span');sp.className='ss';sp.textContent='🍕';sp.style.animation='popIn .15s ease';sp.style.fontSize='12px';stk.appendChild(sp);}
+  else{var ov=stk.querySelector('.ov');if(!ov){ov=document.createElement('span');ov.className='ov';ov.style.fontSize='10px';ov.style.color='#888';stk.appendChild(ov);}ov.textContent='+'+(assigned[charIdx]-8)+' more';}
   document.getElementById('cnt'+charIdx).textContent=assigned[charIdx];
   if(slicesLeft<=0) setTimeout(checkSharing,200);
 }
@@ -473,190 +405,137 @@ function resetPerson(idx){
   document.getElementById('cnt'+idx).textContent=0;
   document.getElementById('stk'+idx).innerHTML='';
   document.getElementById('pc'+idx).classList.remove('correct-box','wrong-box');
-  var hidden=document.querySelectorAll('.drag-slice[style*="display: none"],.drag-slice[style*="display:none"]');
-  var shown=0;hidden.forEach(function(el){if(shown<n){el.style.display='';shown++;}});
+  var shown=0;Array.from(document.querySelectorAll('.drag-slice')).filter(function(el){return el.style.display==='none';}).forEach(function(el){if(shown<n){el.style.display='';shown++;}});
   document.getElementById('poolLeft').textContent=slicesLeft;
   var fb=document.getElementById('fb');if(fb){fb.className='feedback';fb.textContent='';}
 }
 
 /* ── CHECK SHARING ── */
+function getCorrect(){
+  if(!isProportional){var each=totalSlices/roundPeople.length;return roundPeople.map(function(){return each;});}
+  return roundRatios.slice(); // each person gets exactly their ratio
+}
 function checkSharing(){
-  var each=totalSlices/roundPeople.length;
-  var allRight=assigned.every(function(a){return Math.abs(a-each)<0.05;});
+  var correct=getCorrect();
+  var allRight=assigned.every(function(a,i){return Math.abs(a-correct[i])<0.05;});
   if(allRight){
     roundPeople.forEach(function(_,i){var b=document.getElementById('pc'+i);if(b){b.classList.remove('wrong-box');b.classList.add('correct-box');}});
-    setRosie('Well done! Now answer the question below.');
     document.getElementById('fb').className='feedback ok';
     document.getElementById('fb').textContent='Correct! Everyone got their fair share!';
     document.getElementById('nb').style.display='block';
+    setRosie('Well done! Now answer the question below.');
     score+=10;toast('+10 pts!');
   } else {
-    lives=Math.max(0,lives-1);
-    document.getElementById('livesDisp').textContent=lives;
-    roundPeople.forEach(function(_,i){
-      var b=document.getElementById('pc'+i);if(b){
-        if(Math.abs(assigned[i]-each)<0.05) b.classList.add('correct-box');
-        else b.classList.add('wrong-box');
-      }
-    });
+    lives=Math.max(0,lives-1);document.getElementById('livesDisp').textContent=lives;
+    roundPeople.forEach(function(_,i){var b=document.getElementById('pc'+i);if(b){if(Math.abs(assigned[i]-correct[i])<0.05)b.classList.add('correct-box');else b.classList.add('wrong-box');}});
     document.getElementById('fb').className='feedback bad';
-    document.getElementById('fb').textContent='Not quite — red people have wrong amounts. Click Reset and try again!';
+    document.getElementById('fb').textContent='Not quite — red people have wrong amounts. Reset and try again!'+(isProportional?' Remember: each person gets slices equal to their ratio number!':'');
     setRosie('Check the red people!');
     roundPeople.forEach(function(_,i){
-      if(Math.abs(assigned[i]-each)>=0.05){
-        var n=assigned[i];assigned[i]=0;slicesLeft+=n;
-        document.getElementById('cnt'+i).textContent=0;
-        document.getElementById('stk'+i).innerHTML='';
-      }
+      if(Math.abs(assigned[i]-correct[i])>=0.05){var n=assigned[i];assigned[i]=0;slicesLeft+=n;document.getElementById('cnt'+i).textContent=0;document.getElementById('stk'+i).innerHTML='';}
     });
-    document.querySelectorAll('.drag-slice[style*="display: none"],.drag-slice[style*="display:none"]').forEach(function(el){el.style.display='';});
+    var toShow=totalSlices-assigned.reduce(function(s,a){return s+a;},0);var shown2=0;
+    Array.from(document.querySelectorAll('.drag-slice')).filter(function(el){return el.style.display==='none';}).forEach(function(el){if(shown2<toShow){el.style.display='';shown2++;}});
     document.getElementById('poolLeft').textContent=slicesLeft;
   }
 }
 
-/* ── QUESTION (fraction, random character) ── */
+/* ── QUESTION — "how many slices did X get?" ── */
 function showQuestion(){
-  var n=roundPeople.length;
-  var fracStr='1/'+n;
-  var each=totalSlices/n;
-  var eachStr=each===Math.floor(each)?each.toString():each.toFixed(1);
-
-  // Pick a random character to ask about
-  var askIdx=Math.floor(Math.random()*n);
+  var correct=getCorrect();
+  var askIdx=Math.floor(Math.random()*roundPeople.length);
   var askPerson=roundPeople[askIdx];
+  var askSlices=correct[askIdx];
 
-  var qText='There are <b>'+totalSlices+' slices</b> shared equally between <b>'+n+' people</b>. '
-    +'What fraction of the pizza does <b>'+askPerson.emoji+' '+askPerson.name+'</b> get?'
-    +'<br><span style="font-size:12px;color:#555">Write your answer as a fraction e.g. <b>1/2</b></span>';
-  var hint=askPerson.name+' gets <b>1/'+n+'</b> of the pizza. That is '+totalSlices+' ÷ '+n+' = <b>'+eachStr+' slices</b>.';
+  var qText='The pizza had <b>'+totalSlices+' slices</b>. '
+    +(isProportional
+      ? 'The slices were shared proportionally (each person\'s ratio = their slice count). '
+      : 'The slices were shared equally. ')
+    +'How many slices did <b>'+askPerson.emoji+' '+askPerson.name+'</b> get?';
+
+  var hint=askPerson.name+' got <b>'+askSlices+'</b> slice'+(askSlices!==1?'s':'')+'.'
+    +(isProportional?' (Ratio '+askPerson.ratio+' out of total '+roundRatios.reduce(function(s,r){return s+r;},0)+')':'');
 
   var card=document.getElementById('mainCard');
   var d=document.createElement('div');
-  d.innerHTML=
-    '<div class="q-box">'
-      +'<div class="q-title">📝 Answer the question!</div>'
-      +'<div class="q-text">'+qText+'</div>'
-      +'<div class="q-row">'
-        +'<input class="q-inp" id="qInp" type="text" placeholder="1/?"/>'
-        +'<button class="q-btn" id="qCheckBtn">Check!</button>'
-      +'</div>'
-      +'<div class="feedback" id="qFb"></div>'
-      +'<button class="next-btn" id="qNb" onclick="nextRound()">Next round →</button>'
-    +'</div>';
+  d.innerHTML='<div class="q-box">'
+    +'<div class="q-title">📝 Answer the question!</div>'
+    +'<div class="q-text">'+qText+'</div>'
+    +'<div style="font-size:12px;color:#555;margin-bottom:10px">Type a whole number e.g. <b>4</b></div>'
+    +'<div class="q-row">'
+      +'<input class="q-inp" id="qInp" type="number" min="0" placeholder="?"/>'
+      +'<button class="q-btn" id="qCheckBtn">Check!</button>'
+    +'</div>'
+    +'<div class="feedback" id="qFb"></div>'
+    +'<button class="next-btn" id="qNb" onclick="nextRound()">Next round →</button>'
+  +'</div>';
   card.appendChild(d);
   document.getElementById('nb').style.display='none';
-
-  document.getElementById('qCheckBtn').addEventListener('click', function(){
-    checkQ(fracStr, hint);
-  });
-  document.getElementById('qInp').addEventListener('keydown',function(e){
-    if(e.key==='Enter') checkQ(fracStr, hint);
-  });
+  document.getElementById('qCheckBtn').addEventListener('click',function(){checkQ(askSlices,hint);});
+  document.getElementById('qInp').addEventListener('keydown',function(e){if(e.key==='Enter')checkQ(askSlices,hint);});
   document.getElementById('qInp').focus();
 }
 
-function checkQ(correct, hint){
-  var val=document.getElementById('qInp').value.trim().replace(/\s/g,'');
-  var inp=document.getElementById('qInp');
-  var fb=document.getElementById('qFb');
+function checkQ(correct,hint){
+  var val=parseInt(document.getElementById('qInp').value);
+  var inp=document.getElementById('qInp'),fb=document.getElementById('qFb');
+  if(isNaN(val)){fb.className='feedback bad';fb.textContent='Please type a number!';return;}
   if(val===correct){
-    inp.classList.add('ok');
-    fb.className='feedback ok';
-    fb.innerHTML='Correct! '+hint;
-    document.getElementById('qNb').style.display='block';
-    score+=10;toast('+10 pts!');
+    inp.classList.add('ok');fb.className='feedback ok';fb.innerHTML='Correct! '+hint;
+    document.getElementById('qNb').style.display='block';score+=10;toast('+10 pts!');
   } else {
-    lives=Math.max(0,lives-1);
-    document.getElementById('livesDisp').textContent=lives;
-    inp.classList.add('no');
-    fb.className='feedback bad';
-    fb.innerHTML='Not quite! '+hint;
+    lives=Math.max(0,lives-1);document.getElementById('livesDisp').textContent=lives;
+    inp.classList.add('no');fb.className='feedback bad';fb.innerHTML='Not quite! '+hint;
     setTimeout(function(){inp.classList.remove('no');inp.value='';inp.focus();},900);
   }
 }
 
 function nextRound(){
-  if(diff==='hard'){
-    hardRi++;
-    if(hardRi>=HARD_TOTAL){ showDiffComplete(); return; }
-    renderHard(); return;
-  }
-  ri++;
-  if(ri>=ROUNDS[diff].length){showDiffComplete();return;}
-  renderRound();
+  if(diff==='hard'){hardRi++;if(hardRi>=HARD_TOTAL){showDiffComplete();return;}isProportional=false;renderHard();return;}
+  ri++;if(ri>=ROUNDS[diff].length){showDiffComplete();return;}renderRound();
 }
 
-/* ── DIFFICULTY COMPLETION ── */
+/* ── COMPLETION ── */
 function showDiffComplete(){
   var maxStars=diff==='hard'?6:3;
   var earned=diff==='hard'?Math.min(6,Math.max(1,lives*2)):Math.min(3,Math.max(1,lives));
   saveToServer(true,score,earned,diff);
-  if(!window._pizzaDone) window._pizzaDone={};
-  window._pizzaDone[diff]=true;
-
-  var starsHTML='';
-  for(var s=1;s<=maxStars;s++){
-    starsHTML+=s<=earned?'<span style="color:#2e7d52;font-size:1.9rem">&#9733;</span>':'<span style="color:#ddd;font-size:1.9rem">&#9733;</span>';
-  }
-  var allDiffs=['easy','medium','hard'];
-  var nextDiff=null;
+  if(!window._pizzaDone)window._pizzaDone={};window._pizzaDone[diff]=true;
+  var starsHTML='';for(var s=1;s<=maxStars;s++){starsHTML+=s<=earned?'<span style="color:#2e7d52;font-size:1.9rem">&#9733;</span>':'<span style="color:#ddd;font-size:1.9rem">&#9733;</span>';}
+  var allDiffs=['easy','medium','hard'];var nextDiff=null;
   for(var i=0;i<allDiffs.length;i++){if(!window._pizzaDone[allDiffs[i]]){nextDiff=allDiffs[i];break;}}
   var clr={easy:'#3a9e5f',medium:'#e07820',hard:'#b94040'};
   var nextBtn=nextDiff
     ?'<br><button id="ndBtn" data-nd="'+nextDiff+'" class="play-again" style="background:'+clr[nextDiff]+';margin-top:12px">Try '+nextDiff.charAt(0).toUpperCase()+nextDiff.slice(1)+'! &#8594;</button>'
     :'<br><button id="ndBtn" data-nd="home" class="play-again" style="background:#2e7d52;margin-top:12px">All done! &#127942; Home</button>';
-
-  document.getElementById('mainCard').innerHTML=
-    '<div class="completion">'
-      +'<div style="font-size:52px;margin-bottom:8px">&#127942;</div>'
-      +'<h2>Congratulations!</h2>'
-      +'<p style="color:#666;font-size:14px;margin-bottom:8px">'+diff.charAt(0).toUpperCase()+diff.slice(1)+' complete!</p>'
-      +'<p style="font-weight:bold;font-size:14px;margin-bottom:6px">You earned:</p>'
-      +'<div>'+starsHTML+'</div>'
-      +'<p style="font-size:13px;color:#888;margin-top:4px">'+earned+' / '+maxStars+' stars</p>'
-      +nextBtn
-      +'<br><button class="play-again" style="background:#555;font-size:.8rem;padding:7px 14px;margin-top:10px" onclick="startGame()">Play again</button>'
-      +'&#160;<a href="/" class="btn sm red" style="margin-left:6px">&#8592; Home</a>'
-    +'</div>';
-
-  setTimeout(function(){
-    var btn=document.getElementById('ndBtn');
-    if(btn) btn.addEventListener('click',function(){
-      var nd=this.getAttribute('data-nd');
-      if(nd==='home') location.href='/'; else switchDiff(nd);
-    });
-  },50);
+  document.getElementById('mainCard').innerHTML='<div class="completion">'
+    +'<div style="font-size:52px;margin-bottom:8px">&#127942;</div>'
+    +'<h2>Congratulations!</h2>'
+    +'<p style="color:#666;font-size:14px;margin-bottom:8px">'+diff.charAt(0).toUpperCase()+diff.slice(1)+' complete!</p>'
+    +'<p style="font-weight:bold;font-size:14px;margin-bottom:6px">You earned:</p>'
+    +'<div>'+starsHTML+'</div>'
+    +'<p style="font-size:13px;color:#888;margin-top:4px">'+earned+' / '+maxStars+' stars</p>'
+    +nextBtn
+    +'<br><button class="play-again" style="background:#555;font-size:.8rem;padding:7px 14px;margin-top:10px" onclick="startGame()">Play again</button>'
+    +'&#160;<a href="/" class="btn sm red" style="margin-left:6px">&#8592; Home</a>'
+  +'</div>';
+  setTimeout(function(){var btn=document.getElementById('ndBtn');if(btn)btn.addEventListener('click',function(){var nd=this.getAttribute('data-nd');if(nd==='home')location.href='/';else switchDiff(nd);});},50);
 }
 
 /* ── DIFFICULTY SWITCH ── */
 function switchDiff(newDiff){
   diff=newDiff;
   document.querySelectorAll('.diff-btn').forEach(function(b){b.className='diff-btn';});
-  var ab=document.querySelector('.diff-btn[data-d="'+newDiff+'"]');
-  if(ab) ab.classList.add('active-'+newDiff);
-  var notices={
-    easy:'Easy — Share pizza slices equally between 2 people!',
-    medium:'Medium — Share equally between 3 people!',
-    hard:'Hard — Choose your own characters and get a perfectly sized pizza!'
-  };
-  var colors={
-    easy:{bg:'#eafaf1',color:'#1a5c35',border:'#3a9e5f'},
-    medium:{bg:'#fef9ec',color:'#784212',border:'#e07820'},
-    hard:{bg:'#fde8e8',color:'#7b241c',border:'#b94040'}
-  };
+  var ab=document.querySelector('.diff-btn[data-d="'+newDiff+'"]');if(ab)ab.classList.add('active-'+newDiff);
+  var notices={easy:'Easy — Share pizza slices equally between 2 people!',medium:'Medium — Different people get different amounts based on age group!',hard:'Hard — Choose your characters, share proportionally, answer the question!'};
+  var colors={easy:{bg:'#eafaf1',color:'#1a5c35',border:'#3a9e5f'},medium:{bg:'#fef9ec',color:'#784212',border:'#e07820'},hard:{bg:'#fde8e8',color:'#7b241c',border:'#b94040'}};
   var nb=document.getElementById('noticeBar');
   if(nb){nb.textContent=notices[newDiff];nb.style.backgroundColor=colors[newDiff].bg;nb.style.color=colors[newDiff].color;nb.style.borderLeftColor=colors[newDiff].border;}
   startGame();
 }
 
-function startGame(){
-  ri=0;hardRi=0;lives=3;score=0;selectedSlice=null;
-  if(diff==='hard') renderHard();
-  else renderRound();
-}
-
+function startGame(){ri=0;hardRi=0;lives=3;score=0;selectedSlice=null;isProportional=false;if(diff==='hard')renderHard();else renderRound();}
 document.querySelectorAll('.diff-btn').forEach(function(btn){btn.addEventListener('click',function(){switchDiff(this.dataset.d);});});
-
 startGame();
 </script>
 {% endblock %}

@@ -31,7 +31,7 @@
 .person-card.correct-box{border-color:#27ae60;background:#eafaf1;cursor:default}
 .person-card.wrong-box{border-color:#c0392b;background:#fadbd8}
 .person-emoji{font-size:30px;line-height:1;margin-bottom:2px}
-.person-name{font-size:11px;font-weight:bold;color:#444}
+.person-name{font-size:12px;font-weight:bold;color:#333}
 .person-age{font-size:10px;color:#888}
 .person-needs{font-size:11px;color:#2980b9;font-weight:bold;margin:3px 0}
 .slice-stack{font-size:12px;min-height:16px;margin:3px 0;line-height:1.3}
@@ -57,9 +57,10 @@
 .start-btn:hover{background:#933232}
 .q-box{background:#eef6ff;border:2px solid #2980b9;border-radius:6px;padding:14px;margin-top:12px}
 .q-title{font-size:13px;font-weight:bold;color:#1a4f7a;margin-bottom:8px}
-.q-text{font-size:15px;font-weight:bold;margin-bottom:12px;line-height:1.7}
+.q-text{font-size:15px;font-weight:bold;margin-bottom:8px;line-height:1.7}
+.q-hint-box{background:#fff3c4;border:1px solid #f5a623;border-radius:4px;padding:8px 10px;font-size:12px;color:#784212;margin-bottom:10px}
 .q-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.q-inp{width:80px;height:46px;border:2px solid #333;font-size:20px;text-align:center;font-weight:bold;border-radius:4px;outline:none}
+.q-inp{width:100px;height:46px;border:2px solid #333;font-size:18px;text-align:center;font-weight:bold;border-radius:4px;outline:none;letter-spacing:2px}
 .q-inp:focus{border-color:#c0392b}
 .q-inp.ok{border-color:#27ae60;background:#d5f5e3;color:#1a5c35}
 .q-inp.no{border-color:#c0392b;background:#fadbd8}
@@ -86,7 +87,7 @@
     <button class="diff-btn" data-d="medium">Medium</button>
     <button class="diff-btn" data-d="hard">Hard</button>
   </div>
-  <div class="notice-bar" id="noticeBar">Easy — Share pizza slices equally between 2 people!</div>
+  <div class="notice-bar" id="noticeBar">Easy — Share pizza slices equally and answer how many slices each person got!</div>
   <div class="prog-bar-wrap">
     <span class="prog-lbl" id="progLbl">Round 1 / 3</span>
     <div class="prog-bar-track"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
@@ -105,15 +106,15 @@ var SAVE_URL   = "{% url 'core:save_progress' task.slug %}";
 var CSRF_TOKEN = "{{ csrf_token }}";
 var OWNED_THEMES = {{ owned_themes|safe }};
 
-/* ── CHARACTERS
-   Ratios based on calorie needs (adult male = 4 as base unit):
-   Junior(5) = 1,  Teen(16F) = 2,  Adult Female(25) = 3,  Adult Male(30) = 4
-   Pizza slices = total ratio, so each person gets exactly their ratio number of slices */
+/* ── CHARACTERS with names
+   Ratios: Lily(5)=1, Maya(16)=2, Sarah(25)=3, James(30)=4
+   Medium pizza = sum of ratios (each gets exactly ratio slices, fraction already simplified)
+   Hard pizza   = sum of ratios × 2 (fractions need simplifying!) */
 var PEOPLE = [
-  { emoji:'🧒', name:'Junior',  age:5,  label:'Junior (age 5)',        ratio:1 },
-  { emoji:'👧', name:'Teen',    age:16, label:'Teen (age 16)',          ratio:2 },
-  { emoji:'👩', name:'Adult F', age:25, label:'Adult female (age 25)', ratio:3 },
-  { emoji:'👨', name:'Adult M', age:30, label:'Adult male (age 30)',   ratio:4 },
+  { emoji:'🧒', name:'Lily',  age:5,  label:'Lily (age 5)',   ratio:1 },
+  { emoji:'👧', name:'Maya',  age:16, label:'Maya (age 16)',  ratio:2 },
+  { emoji:'👩', name:'Sarah', age:25, label:'Sarah (age 25)', ratio:3 },
+  { emoji:'👨', name:'James', age:30, label:'James (age 30)', ratio:4 },
 ];
 
 /* ── PIZZA THEMES ── */
@@ -122,20 +123,20 @@ var PIZZA_THEMES = {
     sliceA:'#e67e22', sliceB:'#1a1a1a', crust:'#d35400', sauce:'#8B1A00', cheese:'#c17f24',
     label:'🎃 Halloween Pizza',
     people:[
-      { emoji:'🎃', name:'Ghost',   age:5,  label:'Junior',  ratio:1 },
-      { emoji:'🧟', name:'Zombie',  age:16, label:'Teen',    ratio:2 },
-      { emoji:'🧛', name:'Vampire', age:25, label:'Adult F', ratio:3 },
-      { emoji:'🧙', name:'Witch',   age:30, label:'Adult M', ratio:4 },
+      { emoji:'🎃', name:'Boo',  age:5,  label:'Boo (Junior)',  ratio:1 },
+      { emoji:'🧟', name:'Rex',  age:16, label:'Rex (Teen)',    ratio:2 },
+      { emoji:'🧛', name:'Vlad', age:25, label:'Vlad (Adult F)',ratio:3 },
+      { emoji:'🧙', name:'Hex',  age:30, label:'Hex (Adult M)', ratio:4 },
     ]
   },
   christmas: {
     sliceA:'#c0392b', sliceB:'#2e7d52', crust:'#922b21', sauce:'#7b241c', cheese:'#f0d080',
     label:'🎄 Christmas Pizza',
     people:[
-      { emoji:'🦌', name:'Reindeer', age:5,  label:'Junior',  ratio:1 },
-      { emoji:'🧝', name:'Elf',      age:16, label:'Teen',    ratio:2 },
-      { emoji:'🤶', name:'Mrs Claus',age:25, label:'Adult F', ratio:3 },
-      { emoji:'🎅', name:'Santa',    age:30, label:'Adult M', ratio:4 },
+      { emoji:'🦌', name:'Dasher', age:5,  label:'Dasher (Junior)',  ratio:1 },
+      { emoji:'🧝', name:'Buddy',  age:16, label:'Buddy (Teen)',     ratio:2 },
+      { emoji:'🤶', name:'Carol',  age:25, label:'Carol (Adult F)',  ratio:3 },
+      { emoji:'🎅', name:'Nick',   age:30, label:'Nick (Adult M)',   ratio:4 },
     ]
   },
 };
@@ -150,22 +151,37 @@ function getPeople(){
   return (activeTheme && PIZZA_THEMES[activeTheme].people) ? PIZZA_THEMES[activeTheme].people : PEOPLE;
 }
 
+/* ── MATHS HELPERS ── */
+function gcd(a, b){ return b===0 ? a : gcd(b, a%b); }
+function simplifyFrac(num, den){
+  var g = gcd(Math.abs(num), Math.abs(den));
+  return [num/g, den/g];
+}
+function fracStr(num, den){
+  var s = simplifyFrac(num, den);
+  return s[0]+'/'+s[1];
+}
+function needsSimplifying(num, den){
+  return gcd(Math.abs(num), Math.abs(den)) > 1;
+}
+
 /* ── ROUNDS ──
-   Easy: equal (everyone gets same slices — 2 characters, 6 slices each = 12 total)
-   Medium: proportional — pizza = sum of ratios so each person gets exactly their ratio number */
+   Easy:   equal sharing, question = "how many slices did X get?" (number answer)
+   Medium: proportional, pizza = totalRatio slices, question = fraction (already simplified)
+   Hard:   proportional, pizza = totalRatio×2 slices, question = fraction (needs simplifying!) */
 var ROUNDS = {
   easy:[
-    { people:[0,3], slices:8,  equal:true, msg:"Junior (age 5) and Adult Male (age 30) share 8 slices equally — everyone gets the same!" },
-    { people:[1,2], slices:6,  equal:true, msg:"Teen (age 16) and Adult Female (age 25) split 6 slices equally." },
-    { people:[0,2], slices:10, equal:true, msg:"Junior and Adult Female share 10 slices equally." },
+    { people:[0,3], slices:8,  equal:true, msg:"Lily (age 5) and James (age 30) share 8 slices equally — everyone gets the same!" },
+    { people:[1,2], slices:6,  equal:true, msg:"Maya (age 16) and Sarah (age 25) split 6 slices equally." },
+    { people:[0,2], slices:10, equal:true, msg:"Lily and Sarah share 10 slices equally." },
   ],
   medium:[
-    /* Junior(1)+AdultM(4) = 5 ratio units → 5 slices: J gets 1, AdultM gets 4 */
-    { people:[0,3], slices:5,  equal:false, msg:"Junior (ratio 1) and Adult Male (ratio 4) share 5 slices — bigger person eats more!" },
-    /* Teen(2)+AdultF(3) = 5 ratio units → 5 slices: T gets 2, AdultF gets 3 */
-    { people:[1,2], slices:5,  equal:false, msg:"Teen (ratio 2) and Adult Female (ratio 3) share 5 slices proportionally." },
-    /* Junior(1)+Teen(2)+AdultM(4) = 7 → 7 slices: J=1, T=2, AdultM=4 */
-    { people:[0,1,3], slices:7, equal:false, msg:"Junior, Teen and Adult Male share 7 slices — each gets slices equal to their ratio!" },
+    /* Lily(1)+James(4) = 5 → pizza=5: Lily=1/5, James=4/5 — already simplified */
+    { people:[0,3], slices:5,  equal:false, msg:"Lily (ratio 1) and James (ratio 4) share 5 slices — bigger person eats more!" },
+    /* Maya(2)+Sarah(3) = 5 → pizza=5: Maya=2/5, Sarah=3/5 — already simplified */
+    { people:[1,2], slices:5,  equal:false, msg:"Maya (ratio 2) and Sarah (ratio 3) share 5 slices proportionally." },
+    /* Lily(1)+Maya(2)+James(4) = 7 → pizza=7: 1/7, 2/7, 4/7 — already simplified */
+    { people:[0,1,3], slices:7, equal:false, msg:"Lily, Maya and James share 7 slices — each gets their ratio number of slices!" },
   ],
   hard:[],
 };
@@ -227,7 +243,7 @@ function buildPizzaSVG(n){
 /* ── HARD SETUP ── */
 function renderHard(){
   updateProgress();
-  setRosie('Round '+(hardRi+1)+' of '+HARD_TOTAL+' — Choose characters. They eat proportionally to their ratio!');
+  setRosie('Round '+(hardRi+1)+' of '+HARD_TOTAL+' — Choose characters! You will need to simplify the fraction at the end.');
   var boxes='';
   for(var b=0;b<HARD_TOTAL;b++){
     if(b<hardRi) boxes+='<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#2e7d52;border:2px solid #1a5c35;border-radius:4px;font-size:14px;margin:0 3px">✅</span>';
@@ -248,10 +264,10 @@ function renderHard(){
     +'</div>'
     +'<div class="setup-box">'
       +'<div class="setup-title">Round '+(hardRi+1)+' — Choose your characters!</div>'
-      +'<div class="ratio-bar">🍕 Ratios: '
+      +'<div class="ratio-bar">Ratios: '
         +src.map(function(p){return p.emoji+' <span>'+p.name+' = '+p.ratio+'</span>';}).join(' &nbsp;|&nbsp; ')
       +'</div>'
-      +'<span class="setup-label">Select 2–4 characters (pizza = total ratio in slices):</span>'
+      +'<span class="setup-label">Select 2–4 characters. The pizza slices = total ratio × 2 (fractions will need simplifying!):</span>'
       +'<div class="char-checkboxes" id="hardCharChecks">'+charChecks+'</div>'
       +'<div class="pizza-hint warn" id="hardPizzaHint">Select at least 2 characters!</div>'
       +'<div class="feedback" id="hardFb"></div>'
@@ -281,9 +297,16 @@ function hardUpdateHint(){
   if(sel.length<2){hint.className='pizza-hint warn';hint.textContent='Select at least 2 characters!';return;}
   var src=getPeople();
   var totalRatio=sel.reduce(function(s,i){return s+src[i].ratio;},0);
+  var pizza=totalRatio*2;
   hint.className='pizza-hint';
-  hint.innerHTML='Pizza has <strong>'+totalRatio+' slices</strong> (= total ratio). '
-    +sel.map(function(i){var p=src[i];return p.emoji+' '+p.name+' gets <strong>'+p.ratio+'</strong>';}).join(', ')+'&nbsp; slice(s).';
+  hint.innerHTML='Pizza has <strong>'+pizza+' slices</strong> (total ratio '+totalRatio+' × 2). '
+    +sel.map(function(i){
+      var p=src[i];
+      var slices=p.ratio*2;
+      var needsSimp=needsSimplifying(slices,pizza);
+      return p.emoji+' '+p.name+' gets <strong>'+slices+' slices</strong> = '+slices+'/'+pizza
+        +(needsSimp?' <em style="color:#b94040">(simplify!)</em>':' <em style="color:#2e7d52">(already simplified)</em>');
+    }).join('<br>');
 }
 
 function startHardRound(){
@@ -292,14 +315,14 @@ function startHardRound(){
   if(sel.length<2){fb.className='feedback bad';fb.textContent='Pick at least 2 characters!';return;}
   var src=getPeople();
   var totalRatio=sel.reduce(function(s,i){return s+src[i].ratio;},0);
-  totalSlices=totalRatio;
+  totalSlices=totalRatio*2; // double so fractions need simplifying
   slicesLeft=totalSlices;
   roundPeople=sel.map(function(i){return src[i];});
   roundRatios=sel.map(function(i){return src[i].ratio;});
   assigned=roundPeople.map(function(){return 0;});
   selectedSlice=null;
   isProportional=true;
-  setRosie('Share '+totalSlices+' slices between '+roundPeople.map(function(p){return p.name;}).join(', ')+'. Each gets their ratio number of slices!');
+  setRosie('Share '+totalSlices+' slices between '+roundPeople.map(function(p){return p.name;}).join(', ')+'. Each person gets their ratio × 2 slices!');
   buildGameUI();
 }
 
@@ -327,11 +350,13 @@ function buildGameUI(){
   }
   var ratioBar='';
   if(isProportional){
+    var correct=getCorrect();
     ratioBar='<div class="ratio-bar">🍕 Share guide: '
-      +roundPeople.map(function(p,idx){return p.emoji+' <span>'+p.name+' needs '+roundRatios[idx]+' slice'+(roundRatios[idx]>1?'s':'')+'</span>';}).join(' &nbsp;·&nbsp; ')
+      +roundPeople.map(function(p,idx){return p.emoji+' <span>'+p.name+' needs '+correct[idx]+' slice'+(correct[idx]>1?'s':'')+'</span>';}).join(' &nbsp;·&nbsp; ')
     +'</div>';
   }
   var peopleHTML=roundPeople.map(function(p,idx){
+    var c=getCorrect();
     return '<div class="person-card" id="pc'+idx+'"'
       +' ondragover="event.preventDefault();this.classList.add(\'drag-over\')"'
       +' ondragleave="this.classList.remove(\'drag-over\')"'
@@ -340,7 +365,7 @@ function buildGameUI(){
       +'<div class="person-emoji">'+p.emoji+'</div>'
       +'<div class="person-name">'+p.name+'</div>'
       +'<div class="person-age">'+p.label+'</div>'
-      +(isProportional?'<div class="person-needs">needs '+roundRatios[idx]+' 🍕</div>':'')
+      +(isProportional?'<div class="person-needs">needs '+c[idx]+' 🍕</div>':'')
       +'<div class="slice-stack" id="stk'+idx+'"></div>'
       +'<div class="person-count"><span id="cnt'+idx+'">0</span> 🍕</div>'
       +'<div class="click-hint">Click to add</div>'
@@ -410,11 +435,20 @@ function resetPerson(idx){
   var fb=document.getElementById('fb');if(fb){fb.className='feedback';fb.textContent='';}
 }
 
-/* ── CHECK SHARING ── */
+/* ── CORRECT AMOUNTS ── */
 function getCorrect(){
-  if(!isProportional){var each=totalSlices/roundPeople.length;return roundPeople.map(function(){return each;});}
-  return roundRatios.slice(); // each person gets exactly their ratio
+  if(!isProportional){
+    var each=totalSlices/roundPeople.length;
+    return roundPeople.map(function(){return each;});
+  }
+  // Hard: each person gets ratio*2 slices; Medium: each gets exactly their ratio
+  if(diff==='hard'){
+    return roundRatios.map(function(r){return r*2;});
+  }
+  return roundRatios.slice();
 }
+
+/* ── CHECK SHARING ── */
 function checkSharing(){
   var correct=getCorrect();
   var allRight=assigned.every(function(a,i){return Math.abs(a-correct[i])<0.05;});
@@ -429,7 +463,7 @@ function checkSharing(){
     lives=Math.max(0,lives-1);document.getElementById('livesDisp').textContent=lives;
     roundPeople.forEach(function(_,i){var b=document.getElementById('pc'+i);if(b){if(Math.abs(assigned[i]-correct[i])<0.05)b.classList.add('correct-box');else b.classList.add('wrong-box');}});
     document.getElementById('fb').className='feedback bad';
-    document.getElementById('fb').textContent='Not quite — red people have wrong amounts. Reset and try again!'+(isProportional?' Remember: each person gets slices equal to their ratio number!':'');
+    document.getElementById('fb').textContent='Not quite — red people have wrong amounts. Reset and try again!'+(isProportional?' Each person gets slices equal to their ratio'+(diff==='hard'?' × 2':'')+'!':'');
     setRosie('Check the red people!');
     roundPeople.forEach(function(_,i){
       if(Math.abs(assigned[i]-correct[i])>=0.05){var n=assigned[i];assigned[i]=0;slicesLeft+=n;document.getElementById('cnt'+i).textContent=0;document.getElementById('stk'+i).innerHTML='';}
@@ -440,22 +474,46 @@ function checkSharing(){
   }
 }
 
-/* ── QUESTION — "how many slices did X get?" ── */
+/* ── QUESTION ──
+   Easy:   number answer ("how many slices did X get?")
+   Medium: fraction answer — already simplified (e.g. 2/5)
+   Hard:   fraction answer — needs simplifying (e.g. 4/10 → 2/5) */
 function showQuestion(){
   var correct=getCorrect();
   var askIdx=Math.floor(Math.random()*roundPeople.length);
   var askPerson=roundPeople[askIdx];
   var askSlices=correct[askIdx];
 
-  var qText='The pizza had <b>'+totalSlices+' slices</b>. '
-    +(isProportional
-      ? 'The slices were shared proportionally (each person\'s ratio = their slice count). '
-      : 'The slices were shared equally. ')
-    +'How many slices did <b>'+askPerson.emoji+' '+askPerson.name+'</b> get?';
+  if(diff==='easy'){
+    // Number question
+    var qText='The pizza had <b>'+totalSlices+' slices</b> shared equally between <b>'+roundPeople.length+' people</b>. How many slices did <b>'+askPerson.emoji+' '+askPerson.name+'</b> get?';
+    var hint=askPerson.name+' got <b>'+askSlices+'</b> slices. ('+totalSlices+' ÷ '+roundPeople.length+' = '+askSlices+')';
+    buildNumberQuestion(qText, hint, askSlices);
 
-  var hint=askPerson.name+' got <b>'+askSlices+'</b> slice'+(askSlices!==1?'s':'')+'.'
-    +(isProportional?' (Ratio '+askPerson.ratio+' out of total '+roundRatios.reduce(function(s,r){return s+r;},0)+')':'');
+  } else if(diff==='medium'){
+    // Fraction question — already in simplest form
+    var frac=fracStr(askSlices, totalSlices); // e.g. "2/5"
+    var qText='The pizza had <b>'+totalSlices+' slices</b>. <b>'+askPerson.emoji+' '+askPerson.name+'</b> got <b>'+askSlices+' slices</b>.<br>Write '+askPerson.name+"'s share as a fraction of the whole pizza.";
+    var hintBox='Write it as: slices they got ÷ total slices = '+askSlices+'/'+totalSlices+' — this is already in its simplest form!';
+    var hint=askPerson.name+"'s share is <b>"+frac+'</b> of the pizza. ('+askSlices+'/'+totalSlices+' is already fully simplified)';
+    buildFractionQuestion(qText, hintBox, hint, frac, false);
 
+  } else {
+    // Hard — fraction needs simplifying
+    var rawFrac=askSlices+'/'+totalSlices;
+    var simpFrac=fracStr(askSlices, totalSlices);
+    var needsSimp=needsSimplifying(askSlices, totalSlices);
+    var qText='The pizza had <b>'+totalSlices+' slices</b>. <b>'+askPerson.emoji+' '+askPerson.name+'</b> got <b>'+askSlices+' slices</b>.<br>Write '+askPerson.name+"'s share as a <b>simplified fraction</b> of the whole pizza.";
+    var g=gcd(askSlices,totalSlices);
+    var hintBox=needsSimp
+      ?'Start with '+askSlices+'/'+totalSlices+'. Both numbers divide by '+g+'. So '+askSlices+'÷'+g+'='+askSlices/g+' and '+totalSlices+'÷'+g+'='+totalSlices/g+'. Answer: '+simpFrac
+      :askSlices+'/'+totalSlices+' is already in its simplest form! Answer: '+simpFrac;
+    var hint=askPerson.name+"'s simplified fraction is <b>"+simpFrac+'</b>.'+(needsSimp?' ('+rawFrac+' ÷ '+g+' = '+simpFrac+')':'');
+    buildFractionQuestion(qText, hintBox, hint, simpFrac, needsSimp);
+  }
+}
+
+function buildNumberQuestion(qText, hint, correctNum){
   var card=document.getElementById('mainCard');
   var d=document.createElement('div');
   d.innerHTML='<div class="q-box">'
@@ -471,23 +529,59 @@ function showQuestion(){
   +'</div>';
   card.appendChild(d);
   document.getElementById('nb').style.display='none';
-  document.getElementById('qCheckBtn').addEventListener('click',function(){checkQ(askSlices,hint);});
-  document.getElementById('qInp').addEventListener('keydown',function(e){if(e.key==='Enter')checkQ(askSlices,hint);});
+  document.getElementById('qCheckBtn').addEventListener('click',function(){
+    var val=parseInt(document.getElementById('qInp').value);
+    var inp=document.getElementById('qInp'),fb=document.getElementById('qFb');
+    if(isNaN(val)){fb.className='feedback bad';fb.textContent='Please type a number!';return;}
+    if(val===correctNum){
+      inp.classList.add('ok');fb.className='feedback ok';fb.innerHTML='Correct! '+hint;
+      document.getElementById('qNb').style.display='block';score+=10;toast('+10 pts!');
+    } else {
+      lives=Math.max(0,lives-1);document.getElementById('livesDisp').textContent=lives;
+      inp.classList.add('no');fb.className='feedback bad';fb.innerHTML='Not quite! '+hint;
+      setTimeout(function(){inp.classList.remove('no');inp.value='';inp.focus();},900);
+    }
+  });
+  document.getElementById('qInp').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('qCheckBtn').click();});
   document.getElementById('qInp').focus();
 }
 
-function checkQ(correct,hint){
-  var val=parseInt(document.getElementById('qInp').value);
-  var inp=document.getElementById('qInp'),fb=document.getElementById('qFb');
-  if(isNaN(val)){fb.className='feedback bad';fb.textContent='Please type a number!';return;}
-  if(val===correct){
-    inp.classList.add('ok');fb.className='feedback ok';fb.innerHTML='Correct! '+hint;
-    document.getElementById('qNb').style.display='block';score+=10;toast('+10 pts!');
-  } else {
-    lives=Math.max(0,lives-1);document.getElementById('livesDisp').textContent=lives;
-    inp.classList.add('no');fb.className='feedback bad';fb.innerHTML='Not quite! '+hint;
-    setTimeout(function(){inp.classList.remove('no');inp.value='';inp.focus();},900);
-  }
+function buildFractionQuestion(qText, hintBox, feedbackHint, correctFrac, needsSimp){
+  var card=document.getElementById('mainCard');
+  var d=document.createElement('div');
+  d.innerHTML='<div class="q-box">'
+    +'<div class="q-title">📝 Answer the question!</div>'
+    +'<div class="q-text">'+qText+'</div>'
+    +(needsSimp?'<div class="q-hint-box">💡 Hint: '+hintBox+'</div>':'<div style="font-size:12px;color:#555;margin-bottom:10px">Write as a fraction e.g. <b>2/5</b></div>')
+    +'<div class="q-row">'
+      +'<input class="q-inp" id="qInp" type="text" placeholder="?/?" style="width:110px"/>'
+      +'<button class="q-btn" id="qCheckBtn">Check!</button>'
+    +'</div>'
+    +'<div class="feedback" id="qFb"></div>'
+    +'<button class="next-btn" id="qNb" onclick="nextRound()">Next round →</button>'
+  +'</div>';
+  card.appendChild(d);
+  document.getElementById('nb').style.display='none';
+  document.getElementById('qCheckBtn').addEventListener('click',function(){
+    var val=document.getElementById('qInp').value.trim().replace(/\s/g,'');
+    var inp=document.getElementById('qInp'),fb=document.getElementById('qFb');
+    if(!val.includes('/')){fb.className='feedback bad';fb.textContent='Write a fraction using / e.g. 1/5';return;}
+    // Accept the fraction if it simplifies to the correct answer
+    var parts=val.split('/');
+    var num=parseInt(parts[0]),den=parseInt(parts[1]);
+    if(isNaN(num)||isNaN(den)||den===0){fb.className='feedback bad';fb.textContent='Please write a valid fraction e.g. 2/5';return;}
+    var userSimp=fracStr(num,den);
+    if(userSimp===correctFrac){
+      inp.classList.add('ok');fb.className='feedback ok';fb.innerHTML='Correct! '+feedbackHint;
+      document.getElementById('qNb').style.display='block';score+=10;toast('+10 pts!');
+    } else {
+      lives=Math.max(0,lives-1);document.getElementById('livesDisp').textContent=lives;
+      inp.classList.add('no');fb.className='feedback bad';fb.innerHTML='Not quite! '+feedbackHint;
+      setTimeout(function(){inp.classList.remove('no');inp.value='';inp.focus();},900);
+    }
+  });
+  document.getElementById('qInp').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('qCheckBtn').click();});
+  document.getElementById('qInp').focus();
 }
 
 function nextRound(){
@@ -527,7 +621,11 @@ function switchDiff(newDiff){
   diff=newDiff;
   document.querySelectorAll('.diff-btn').forEach(function(b){b.className='diff-btn';});
   var ab=document.querySelector('.diff-btn[data-d="'+newDiff+'"]');if(ab)ab.classList.add('active-'+newDiff);
-  var notices={easy:'Easy — Share pizza slices equally between 2 people!',medium:'Medium — Different people get different amounts based on age group!',hard:'Hard — Choose your characters, share proportionally, answer the question!'};
+  var notices={
+    easy:'Easy — Share equally and answer how many slices each person got!',
+    medium:'Medium — Share proportionally and write the answer as a fraction!',
+    hard:'Hard — Share proportionally and simplify the fraction!'
+  };
   var colors={easy:{bg:'#eafaf1',color:'#1a5c35',border:'#3a9e5f'},medium:{bg:'#fef9ec',color:'#784212',border:'#e07820'},hard:{bg:'#fde8e8',color:'#7b241c',border:'#b94040'}};
   var nb=document.getElementById('noticeBar');
   if(nb){nb.textContent=notices[newDiff];nb.style.backgroundColor=colors[newDiff].bg;nb.style.color=colors[newDiff].color;nb.style.borderLeftColor=colors[newDiff].border;}

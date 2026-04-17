@@ -1,9 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth import get_user_model
-from django.utils.html import format_html
 from .models import Task, Progress, Attempt, UserProfile, Classroom, ShopItem, UserShopItem
-
-User = get_user_model()
 
 
 @admin.register(Task)
@@ -16,7 +12,7 @@ class TaskAdmin(admin.ModelAdmin):
 @admin.register(Progress)
 class ProgressAdmin(admin.ModelAdmin):
     list_display  = ("user", "task", "easy_stars", "medium_stars", "hard_stars",
-                     "stars", "completed", "last_score", "updated_at")
+                     "completed", "last_score", "updated_at")
     list_filter   = ("completed", "task")
     search_fields = ("user__username",)
     ordering      = ("-updated_at",)
@@ -32,11 +28,8 @@ class AttemptAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display  = ("user", "role", "classroom", "total_stars")
-    list_filter   = ("role", "classroom")
+    list_filter   = ("role",)
     search_fields = ("user__username",)
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("user", "classroom")
 
 
 @admin.register(Classroom)

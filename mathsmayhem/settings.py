@@ -4,12 +4,8 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-mathsmayhem-dev-only-change-in-production")
-DEBUG = os.environ.get("DEBUG", "True") == "True"
-_raw_hosts = os.environ.get("ALLOWED_HOSTS", "*")
-ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",")]
-# Always allow localhost for health checks
-if "localhost" not in ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
+DEBUG = os.environ.get("DEBUG", "False") != "False"
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com"]
 
@@ -50,7 +46,6 @@ TEMPLATES = [{
 
 WSGI_APPLICATION = "mathsmayhem.wsgi.application"
 
-# PostgreSQL on Render, SQLite locally
 if os.environ.get("DATABASE_URL"):
     import dj_database_url
     DATABASES = {"default": dj_database_url.config(conn_max_age=600)}
@@ -62,7 +57,7 @@ else:
         }
     }
 
-AUTH_PASSWORD_VALIDATORS = []   # relaxed for a school project — add validators for production
+AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE     = "UTC"
@@ -70,7 +65,8 @@ USE_I18N      = True
 USE_TZ        = True
 
 STATIC_URL  = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+_static_dir = BASE_DIR / "static"
+STATICFILES_DIRS = [_static_dir] if _static_dir.exists() else []
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
@@ -80,5 +76,14 @@ LOGIN_URL          = "/login/"
 LOGIN_REDIRECT_URL = "/tasks/"
 LOGOUT_REDIRECT_URL = "/login/"
 
-# Teacher registration PIN
 TEACHER_PIN = "2004"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+    },
+}

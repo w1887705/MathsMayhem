@@ -10,6 +10,7 @@ ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",")]
 # Always allow localhost for health checks
 if "localhost" not in ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
+    CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",

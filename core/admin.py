@@ -16,6 +16,18 @@ class ProgressAdmin(admin.ModelAdmin):
     list_filter   = ("completed", "task")
     search_fields = ("user__username",)
     ordering      = ("-updated_at",)
+    list_editable = ("easy_stars", "medium_stars", "hard_stars")
+
+    def save_model(self, request, obj, form, change):
+        obj.stars = obj.easy_stars + obj.medium_stars + obj.hard_stars
+        super().save_model(request, obj, form, change)
+        profile = obj.user.userprofile
+        total = sum(
+            p.easy_stars + p.medium_stars + p.hard_stars
+            for p in Progress.objects.filter(user=obj.user)
+        )
+        profile.total_stars = total
+        profile.save()
 
 
 @admin.register(Attempt)
@@ -30,6 +42,10 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display  = ("user", "role", "classroom", "total_stars")
     list_filter   = ("role",)
     search_fields = ("user__username",)
+    list_editable = ("total_stars",)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Classroom)
